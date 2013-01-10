@@ -68,7 +68,7 @@ public class Song {
 		return year;
 	}
 
-	public static Song fromCursor(Cursor cursor) {
+	private static Song fromCursor(Cursor cursor) {
 		Song album = new Song();
 		album.id = cursor.getInt(cursor.getColumnIndex("_id"));
 		album.displayName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));

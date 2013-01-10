@@ -35,7 +35,7 @@ public class Artist {
 		return trackCount;
 	}
 
-	public static Artist fromCursor(Cursor cursor) {
+	private static Artist fromCursor(Cursor cursor) {
 		Artist album = new Artist();
 		album.id = cursor.getInt(cursor.getColumnIndex("_id"));
 		album.name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.ArtistColumns.ARTIST));

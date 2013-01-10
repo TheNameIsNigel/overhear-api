@@ -19,7 +19,7 @@ public class Album {
 
 	private int albumId;
 	private String name;
-	private String artist;
+	private Artist artist;
 	private String albumKey;
 	private Calendar minYear;
 	private Calendar maxYear;
@@ -32,7 +32,7 @@ public class Album {
 		return name;
 	}
 	public Artist getArtist(Context context) {
-		return Artist.getArtist(context, artist);
+		return artist;
 	}
 	public String getAlbumKey() {
 		return albumKey;
@@ -52,11 +52,12 @@ public class Album {
 		return Utils.loadImage(context, uri, widthDp, heightDp);
 	}
 
-	public static Album fromCursor(Cursor cursor) {
+	private static Album fromCursor(Context context, Cursor cursor) {
 		Album album = new Album();
 		album.albumId = cursor.getInt(cursor.getColumnIndex("_id"));
 		album.name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM));
-		album.artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ARTIST)); 
+		album.artist = Artist.getArtist(context, cursor.getString(
+				cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ARTIST))); 
 		album.albumKey = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM_KEY));
 		album.minYear = Calendar.getInstance();
 		album.minYear.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.FIRST_YEAR)));
@@ -82,12 +83,12 @@ public class Album {
 		return json;
 	}
 
-	public static Album fromJSON(JSONObject json) {
+	public static Album fromJSON(Context context, JSONObject json) {
 		Album album = new Album();
 		try {
 			album.albumId = json.getInt("id");
 			album.name = json.getString("name");
-			album.artist = json.getString("artist");
+			album.artist = Artist.getArtist(context, json.getString("artist"));
 			album.albumKey = json.getString("key");
 			album.minYear = Calendar.getInstance();
 			album.minYear.setTimeInMillis(json.getLong("min_year"));
@@ -109,7 +110,7 @@ public class Album {
 				MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
 		ArrayList<Album> albums = new ArrayList<Album>();
 		while (cur.moveToNext()) {
-			albums.add(Album.fromCursor(cur));
+			albums.add(Album.fromCursor(context, cur));
 		}
 		cur.close();
 		return albums;
@@ -124,7 +125,7 @@ public class Album {
 				MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
 		ArrayList<Album> albums = new ArrayList<Album>();
 		while (cur.moveToNext()) {
-			albums.add(Album.fromCursor(cur));
+			albums.add(Album.fromCursor(context, cur));
 		}
 		cur.close();
 		return albums;
