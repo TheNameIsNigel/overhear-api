@@ -114,4 +114,19 @@ public class Album {
 		cur.close();
 		return albums;
 	}
+	
+	public static List<Album> getAlbumsForArtist(Context context, String artist) {
+		Cursor cur = context.getContentResolver().query(
+				MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, 
+				null, 
+				MediaStore.Audio.AlbumColumns.ARTIST + " = '" + artist.replace("'", "''") + "'", 
+				null, 
+				MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
+		ArrayList<Album> albums = new ArrayList<Album>();
+		while (cur.moveToNext()) {
+			albums.add(Album.fromCursor(cur));
+		}
+		cur.close();
+		return albums;
+	}
 }
