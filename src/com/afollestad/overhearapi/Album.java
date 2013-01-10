@@ -31,7 +31,7 @@ public class Album {
 	public String getName() {
 		return name;
 	}
-	public Artist getArtist(Context context) {
+	public Artist getArtist() {
 		return artist;
 	}
 	public String getAlbumKey() {
@@ -56,8 +56,9 @@ public class Album {
 		Album album = new Album();
 		album.albumId = cursor.getInt(cursor.getColumnIndex("_id"));
 		album.name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM));
-		album.artist = Artist.getArtist(context, cursor.getString(
-				cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ARTIST))); 
+		album.artist = new Artist(
+				cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ARTIST)),
+				cursor.getString(cursor.getColumnIndex(MediaStore.Audio.ArtistColumns.ARTIST_KEY))); 
 		album.albumKey = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM_KEY));
 		album.minYear = Calendar.getInstance();
 		album.minYear.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.FIRST_YEAR)));
@@ -72,7 +73,7 @@ public class Album {
 		try {
 			json.put("id", this.albumId);
 			json.put("name", this.name);
-			json.put("artist", this.artist);
+			json.put("artist", this.artist.getJSON().toString());
 			json.put("key", this.albumKey);
 			json.put("min_year", this.minYear.getTimeInMillis());
 			json.put("max_year", this.maxYear.getTimeInMillis());
@@ -88,7 +89,7 @@ public class Album {
 		try {
 			album.albumId = json.getInt("id");
 			album.name = json.getString("name");
-			album.artist = Artist.getArtist(context, json.getString("artist"));
+			album.artist = Artist.fromJSON(new JSONObject(json.getString("artist")));
 			album.albumKey = json.getString("key");
 			album.minYear = Calendar.getInstance();
 			album.minYear.setTimeInMillis(json.getLong("min_year"));
