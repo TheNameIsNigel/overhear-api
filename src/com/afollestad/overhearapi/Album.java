@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.json.JSONObject;
+
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
@@ -64,6 +66,40 @@ public class Album {
 		return album;
 	}
 
+	public JSONObject getJSON() {
+		JSONObject json = new JSONObject();
+		try {
+			json.put("id", this.albumId);
+			json.put("name", this.name);
+			json.put("artist", this.artist);
+			json.put("key", this.albumKey);
+			json.put("min_year", this.minYear.getTimeInMillis());
+			json.put("max_year", this.maxYear.getTimeInMillis());
+			json.put("num_songs", this.numSongs);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return json;
+	}
+
+	public static Album fromJSON(JSONObject json) {
+		Album album = new Album();
+		try {
+			album.albumId = json.getInt("id");
+			album.name = json.getString("name");
+			album.artist = json.getString("artist");
+			album.albumKey = json.getString("key");
+			album.minYear = Calendar.getInstance();
+			album.minYear.setTimeInMillis(json.getLong("min_year"));
+			album.maxYear = Calendar.getInstance();
+			album.maxYear.setTimeInMillis(json.getLong("max_year"));
+			album.numSongs = json.getInt("num_songs");
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return album;
+	}
+	
 	public static List<Album> getAllAlbums(Context context) {
 		Cursor cur = context.getContentResolver().query(
 				MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, 
