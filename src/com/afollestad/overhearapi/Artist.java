@@ -84,6 +84,21 @@ public class Artist {
 		while (cur.moveToNext()) {
 			artists.add(Artist.fromCursor(cur));
 		}
+		cur.close();
 		return artists;
+	}
+	
+	public static Artist getArtist(Context context, String name) {
+		name = name.replace("'", "''");
+		Cursor cur = context.getContentResolver().query(
+				MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI, 
+				null, 
+				MediaStore.Audio.ArtistColumns.ARTIST + " = '" + name + "'", 
+				null, 
+				MediaStore.Audio.Artists.DEFAULT_SORT_ORDER);
+		cur.moveToFirst();
+		Artist toreturn = Artist.fromCursor(cur);
+		cur.close();
+		return toreturn;
 	}
 }

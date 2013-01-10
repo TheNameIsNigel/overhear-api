@@ -31,8 +31,8 @@ public class Album {
 	public String getName() {
 		return name;
 	}
-	public String getArtist() {
-		return artist;
+	public Artist getArtist(Context context) {
+		return Artist.getArtist(context, artist);
 	}
 	public String getAlbumKey() {
 		return albumKey;
@@ -111,6 +111,7 @@ public class Album {
 		while (cur.moveToNext()) {
 			albums.add(Album.fromCursor(cur));
 		}
+		cur.close();
 		return albums;
 	}
 }

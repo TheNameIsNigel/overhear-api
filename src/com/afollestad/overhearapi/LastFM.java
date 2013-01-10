@@ -1,18 +1,9 @@
 package com.afollestad.overhearapi;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.net.URLEncoder;
-import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.net.Uri;
 
 public class LastFM {
 
@@ -33,23 +24,8 @@ public class LastFM {
 		public String getName() {
 			return name;
 		}
-		public Bitmap getBioImage(Context context, float widthDp, float heightDp, boolean cache) throws Exception {
-			if(cache) {
-				File[] files = context.getCacheDir().listFiles(new FilenameFilter() {
-					@Override
-					public boolean accept(File dir, String name) {
-						return name.toLowerCase(Locale.getDefault()).equals(name + "_ART.jpg");
-					}
-				});
-				if(files != null && files.length >= 1) {
-					return Utils.loadImage(context, Uri.fromFile(files[0]), widthDp, heightDp);
-				}
-			}
-			Bitmap loaded = Utils.loadImage(context, Uri.parse(bioImageUrl), widthDp, heightDp);
-			if(cache) {
-				loaded.compress(CompressFormat.JPEG, 100, new FileOutputStream(new File(context.getCacheDir(), name + "_ART.jpg")));
-			}
-			return loaded;
+		public String getBioImageURL() throws Exception {
+			return bioImageUrl;
 		}
 		public String getBioPublishedDate() {
 			return bioPublished;
