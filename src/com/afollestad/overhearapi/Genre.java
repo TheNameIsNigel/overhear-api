@@ -27,6 +27,9 @@ public class Genre {
 		Genre genre = new Genre();
 		genre.id = cursor.getInt(cursor.getColumnIndex("_id"));
 		genre.name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.GenresColumns.NAME));
+		if(genre.name == null || genre.name.trim().isEmpty()) {
+			return null;
+		}
 		return genre;
 	}
 
@@ -46,9 +49,6 @@ public class Genre {
 		try {
 			genre.id = json.getInt("id");
 			genre.name = json.getString("name");
-			if(genre.name == null || genre.name.trim().isEmpty()) {
-				return null;
-			}
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

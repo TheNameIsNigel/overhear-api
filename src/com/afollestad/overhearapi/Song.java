@@ -3,6 +3,7 @@ package com.afollestad.overhearapi;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -44,6 +45,15 @@ public class Song {
 	}
 	public long getDuration() { 
 		return duration;
+	}
+	public String getDurationString() {
+		String minute = TimeUnit.MILLISECONDS.toMinutes(getDuration()) + "";
+		String seconds = Long.toString(TimeUnit.MILLISECONDS.toSeconds(getDuration()) - 
+			    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(getDuration()))); 
+		if(seconds.length() == 1) {
+			seconds = "0" + seconds;
+		}
+		return minute + ":" + seconds;
 	}
 	public int getTrack() {
 		return track;
