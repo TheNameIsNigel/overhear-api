@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
@@ -68,6 +70,48 @@ public class Song {
 		return year;
 	}
 
+	public JSONObject getJSON() {
+		JSONObject json = new JSONObject();
+		try {
+			json.put("id", this.id);
+			json.put("name", this.displayName);
+			json.put("mime", this.mimeType);
+			json.put("date_added", this.dateAdded.getTimeInMillis());
+			json.put("date_modified", this.dateModified.getTimeInMillis());
+			json.put("title", this.title);
+			json.put("duration", this.duration);
+			json.put("track", this.track);
+			json.put("artist", this.artist);
+			json.put("album", this.album);
+			json.put("year", this.year);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return json;
+	}
+
+	public static Song fromJSON(JSONObject json) {
+		Song song = new Song();
+		try {
+			song.id = json.getInt("id");
+			song.displayName = json.getString("name");
+			song.mimeType = json.getString("mime");
+			song.dateAdded = Calendar.getInstance();
+			song.dateAdded.setTimeInMillis(json.getLong("date_added"));
+			song.dateModified = Calendar.getInstance();
+			song.dateModified.setTimeInMillis(json.getLong("date_modified"));
+			song.title = json.getString("title");
+			song.duration = json.getLong("duration");
+			song.track = json.getInt("track");
+			song.artist = json.getString("artist");
+			song.album = json.getString("album");
+			song.year = json.getInt("year");
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return song;
+	}
+	
 	private static Song fromCursor(Cursor cursor) {
 		Song album = new Song();
 		album.id = cursor.getInt(cursor.getColumnIndex("_id"));
