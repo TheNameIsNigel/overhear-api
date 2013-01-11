@@ -173,36 +173,28 @@ public class Utils {
 		String day = Integer.toString(time.get(Calendar.DAY_OF_MONTH));
 		if (day.length() == 1)
 			day = ("0" + day);
-		String minute = Integer.toString(time.get(Calendar.MINUTE));
-		int hour = time.get(Calendar.HOUR);
-		if (hour == 0)
-			hour = 12;
-		if (minute.length() == 1)
-			minute = ("0" + minute);
 		if (now.get(Calendar.YEAR) == time.get(Calendar.YEAR)) {
 			if (now.get(Calendar.MONTH) == time.get(Calendar.MONTH)) {
-				if (now.get(Calendar.WEEK_OF_MONTH) == time
-						.get(Calendar.WEEK_OF_MONTH)) {
-					return hour + ":" + minute + am_pm + " "
-							+ convertMonth(time.get(Calendar.MONTH), false)
-							+ " " + day;
+				if (now.get(Calendar.DAY_OF_YEAR) == time
+						.get(Calendar.DAY_OF_YEAR)) {
+					String minute = Integer.toString(time.get(Calendar.MINUTE));
+					int hour = time.get(Calendar.HOUR);
+					if (hour == 0)
+						hour = 12;
+					if (minute.length() == 1)
+						minute = ("0" + minute);
+					return hour + ":" + minute + am_pm;
 				} else {
-					return hour + ":" + minute + am_pm + " "
-							+ convertMonth(time.get(Calendar.MONTH), false)
-							+ " " + day;
+					return convertMonth(time.get(Calendar.MONTH), false) + " " + day;
 				}
 			} else {
-				return hour + ":" + minute + am_pm + " "
-						+ convertMonth(time.get(Calendar.MONTH), false) + " "
-						+ day;
+				return convertMonth(time.get(Calendar.MONTH), false) + " " + day;
 			}
 		} else {
 			String year = Integer.toString(time.get(Calendar.YEAR));
 			if (now.get(Calendar.YEAR) < time.get(Calendar.YEAR))
 				year = year.substring(1, 3);
-			return hour + ":" + minute + am_pm + " "
-					+ convertMonth(time.get(Calendar.MONTH), false) + " " + day
-					+ ", " + year;
+			return convertMonth(time.get(Calendar.MONTH), false) + " " + day + ", " + year;
 		}
 	}
 }
