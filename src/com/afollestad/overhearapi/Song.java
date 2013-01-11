@@ -130,19 +130,43 @@ public class Song {
 		return album;
 	}
 
-	public static List<Song> getAllSongs(Context context, String album) {
-		String where = null;
-		String sortOrder = MediaStore.Audio.Media.TITLE;
-		if(album != null) {
-			where = MediaStore.Audio.Media.ALBUM + " = '" + album + "'";
-			sortOrder = MediaStore.Audio.Media.TRACK;
-		}
+	public static List<Song> getAllSongs(Context context) {
 		Cursor cur = context.getContentResolver().query(
 				MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, 
 				null, 
-				where, 
 				null, 
-				sortOrder);
+				null, 
+				MediaStore.Audio.Media.TITLE);
+		ArrayList<Song> songs = new ArrayList<Song>();
+		while (cur.moveToNext()) {
+			songs.add(Song.fromCursor(cur));
+		}
+		return songs;
+	}
+	
+	public static List<Song> getSongsByAlbum(Context context, String album) {
+		album = album.replace("'", "''");
+		Cursor cur = context.getContentResolver().query(
+				MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, 
+				null, 
+				MediaStore.Audio.Media.ALBUM + " = '" + album + "'", 
+				null, 
+				MediaStore.Audio.Media.TRACK);
+		ArrayList<Song> songs = new ArrayList<Song>();
+		while (cur.moveToNext()) {
+			songs.add(Song.fromCursor(cur));
+		}
+		return songs;
+	}
+	
+	public static List<Song> getSongsByArtist(Context context, String artist) {
+		artist = artist.replace("'", "''");
+		Cursor cur = context.getContentResolver().query(
+				MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, 
+				null, 
+				MediaStore.Audio.Media.ARTIST + " = '" + artist + "'", 
+				null, 
+				MediaStore.Audio.Media.TITLE);
 		ArrayList<Song> songs = new ArrayList<Song>();
 		while (cur.moveToNext()) {
 			songs.add(Song.fromCursor(cur));
