@@ -5,6 +5,9 @@ import java.net.URLEncoder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.text.Html;
+import android.text.Spanned;
+
 public class LastFM {
 
 	private final static String API_KEY = "129b5bafd64fac60d0c096640b250c17";
@@ -30,11 +33,17 @@ public class LastFM {
 		public String getBioPublishedDate() {
 			return bioPublished;
 		}
-		public String getBioSummary() {
-			return bioSummary;
+		public Spanned getBioSummary() {
+			if(bioSummary == null || bioSummary.trim().isEmpty()) {
+				return null;
+			}
+			return Html.fromHtml(bioSummary.replace("\n", "<br/>"));
 		}
-		public String getBioContent() {
-			return bioContent;
+		public Spanned getBioContent() {
+			if(bioContent == null || bioContent.trim().isEmpty()) {
+				return null;
+			}
+			return Html.fromHtml(bioContent.replace("\n", "<br/>"));
 		}
 		public String getYearFormed() {
 			return yearFormed;

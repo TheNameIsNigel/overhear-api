@@ -117,6 +117,22 @@ public class Album {
 		return albums;
 	}
 	
+	public static Album getAlbum(Context context, String name) {
+		name = name.replace("'", "''");
+		Cursor cur = context.getContentResolver().query(
+				MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, 
+				null, 
+				MediaStore.Audio.AlbumColumns.ALBUM + " = '" + name + "'", 
+				null, 
+				MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
+		Album toreturn = null;
+		if(cur.moveToFirst()) {
+			toreturn = Album.fromCursor(context, cur); 
+		}
+		cur.close();
+		return toreturn;
+	}
+	
 	public static List<Album> getAlbumsForArtist(Context context, String artist) {
 		Cursor cur = context.getContentResolver().query(
 				MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, 
