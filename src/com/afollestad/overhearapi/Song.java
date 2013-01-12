@@ -26,6 +26,7 @@ public class Song {
 	private String artist;
 	private String album;
 	private int year;
+	private String data;
 
 	public int getId() {
 		return id;
@@ -69,7 +70,10 @@ public class Song {
 	public int getYear() {
 		return year;
 	}
-
+	public String getData() {
+		return data;
+	}
+	
 	public JSONObject getJSON() {
 		JSONObject json = new JSONObject();
 		try {
@@ -84,6 +88,7 @@ public class Song {
 			json.put("artist", this.artist);
 			json.put("album", this.album);
 			json.put("year", this.year);
+			json.put("data", this.data);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -106,6 +111,7 @@ public class Song {
 			song.artist = json.getString("artist");
 			song.album = json.getString("album");
 			song.year = json.getInt("year");
+			song.data = json.getString("data");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -127,6 +133,7 @@ public class Song {
 		album.artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
 		album.album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
 		album.year = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.YEAR));
+		album.data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
 		return album;
 	}
 
