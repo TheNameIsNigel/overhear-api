@@ -1,14 +1,11 @@
 package com.afollestad.overhearapi;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import org.json.JSONObject;
 
-import android.content.Context;
 import android.database.Cursor;
-import android.os.Handler;
 import android.provider.MediaStore;
 
 public class Song {
@@ -160,73 +157,5 @@ public class Song {
 		album.data = cursor.getString(cursor
 				.getColumnIndex(MediaStore.Audio.Media.DATA));
 		return album;
-	}
-
-	public static void getAllSongs(final Context context, final LoadedCallback<Song[]> callback) {
-		final Handler mHandler = new Handler();
-		new Thread(new Runnable() {
-			public void run() {
-				Cursor cur = context.getContentResolver().query(
-						MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null,
-						null, null, MediaStore.Audio.Media.TITLE);
-				final ArrayList<Song> songs = new ArrayList<Song>();
-				while (cur.moveToNext()) {
-					songs.add(Song.fromCursor(cur));
-				}
-				mHandler.post(new Runnable() {
-					@Override
-					public void run() {
-						if (callback != null)
-							callback.onLoaded(songs.toArray(new Song[0]));
-					}
-				});
-			}
-		}).start();
-	}
-
-	public static void getSongsByAlbum(final Context context, final String album, final LoadedCallback<Song[]> callback) {
-		final Handler mHandler = new Handler();
-		new Thread(new Runnable() {
-			public void run() {
-				Cursor cur = context.getContentResolver().query(
-						MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null,
-						MediaStore.Audio.Media.ALBUM + " = '" + album.replace("'", "''") + "'", null,
-						MediaStore.Audio.Media.TRACK);
-				final ArrayList<Song> songs = new ArrayList<Song>();
-				while (cur.moveToNext()) {
-					songs.add(Song.fromCursor(cur));
-				}
-				mHandler.post(new Runnable() {
-					@Override
-					public void run() {
-						if (callback != null)
-							callback.onLoaded(songs.toArray(new Song[0]));
-					}
-				});
-			}
-		}).start();
-	}
-
-	public static void getSongsByArtist(final Context context, final String artist, final LoadedCallback<Song[]> callback) {
-		final Handler mHandler = new Handler();
-		new Thread(new Runnable() {
-			public void run() {
-				Cursor cur = context.getContentResolver().query(
-						MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null,
-						MediaStore.Audio.Media.ARTIST + " = '" + artist.replace("'", "''") + "'", null,
-						MediaStore.Audio.Media.TITLE);
-				final ArrayList<Song> songs = new ArrayList<Song>();
-				while (cur.moveToNext()) {
-					songs.add(Song.fromCursor(cur));
-				}
-				mHandler.post(new Runnable() {
-					@Override
-					public void run() {
-						if (callback != null)
-							callback.onLoaded(songs.toArray(new Song[0]));
-					}
-				});
-			}
-		}).start();
 	}
 }

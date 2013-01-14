@@ -25,7 +25,7 @@ public class Genre {
 		return name;
 	}
 
-	private static Genre fromCursor(Cursor cursor) {
+	public static Genre fromCursor(Cursor cursor) {
 		Genre genre = new Genre();
 		genre.id = cursor.getInt(cursor.getColumnIndex("_id"));
 		genre.name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.GenresColumns.NAME));

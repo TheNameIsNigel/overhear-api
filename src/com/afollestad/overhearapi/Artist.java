@@ -1,12 +1,9 @@
 package com.afollestad.overhearapi;
 
-import java.util.ArrayList;
-
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Handler;
 import android.provider.MediaStore;
 
 public class Artist {
@@ -27,7 +24,7 @@ public class Artist {
 		return key;
 	}
 
-	private static Artist fromCursor(Cursor cursor) {
+	public static Artist fromCursor(Cursor cursor) {
 		Artist album = new Artist();
 		album.name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.ArtistColumns.ARTIST));
 		album.key = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.ArtistColumns.ARTIST_KEY));
@@ -54,32 +51,6 @@ public class Artist {
 			e.printStackTrace();
 		}
 		return artist;
-	}
-
-	public static void getAllArtists(final Context context, final LoadedCallback<Artist[]> callback) {
-		final Handler mHandler = new Handler();
-		new Thread(new Runnable() {
-			public void run() {
-				Cursor cur = context.getContentResolver().query(
-						MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI, 
-						null, 
-						null, 
-						null, 
-						MediaStore.Audio.Artists.DEFAULT_SORT_ORDER);
-				final ArrayList<Artist> artists = new ArrayList<Artist>();
-				while (cur.moveToNext()) {
-					artists.add(Artist.fromCursor(cur));
-				}
-				cur.close();
-				mHandler.post(new Runnable() {
-					@Override
-					public void run() {
-						if(callback != null)
-							callback.onLoaded(artists.toArray(new Artist[0]));
-					}
-				});
-			}
-		}).start();
 	}
 
 	public static Artist getArtist(Context context, String name) {
