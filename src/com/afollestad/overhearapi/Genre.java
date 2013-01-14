@@ -30,7 +30,7 @@ public class Genre {
 		genre.id = cursor.getInt(cursor.getColumnIndex("_id"));
 		genre.name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.GenresColumns.NAME));
 		if(genre.name == null || genre.name.trim().isEmpty()) {
-			return null;
+			genre.name = "Unknown";
 		}
 		return genre;
 	}

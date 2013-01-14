@@ -58,10 +58,19 @@ public class Album {
 				cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ARTIST)),
 				cursor.getString(cursor.getColumnIndex(MediaStore.Audio.ArtistColumns.ARTIST_KEY))); 
 		album.albumKey = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM_KEY));
-		album.minYear = Calendar.getInstance();
-		album.minYear.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.FIRST_YEAR)));
-		album.maxYear = Calendar.getInstance();
-		album.maxYear.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.FIRST_YEAR)));
+		
+		int minYearIndex = cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.FIRST_YEAR);
+		if(minYearIndex > -1) {
+			album.minYear = Calendar.getInstance();
+			album.minYear.setTimeInMillis(cursor.getLong(minYearIndex));
+		}
+		
+		int maxYearIndex = cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.LAST_YEAR);
+		if(maxYearIndex > -1) {
+			album.maxYear = Calendar.getInstance();
+			album.maxYear.setTimeInMillis(cursor.getLong(maxYearIndex));
+		}
+		
 		album.numSongs = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.NUMBER_OF_SONGS));
 		return album;
 	}
