@@ -2,7 +2,6 @@ package com.afollestad.overhearapi;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import org.json.JSONObject;
 
@@ -11,6 +10,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.MediaStore;
 
 public class Album {
@@ -101,22 +101,32 @@ public class Album {
 		}
 		return album;
 	}
-	
-	public static List<Album> getAllAlbums(Context context) {
-		Cursor cur = context.getContentResolver().query(
-				MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, 
-				null, 
-				null, 
-				null, 
-				MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
-		ArrayList<Album> albums = new ArrayList<Album>();
-		while (cur.moveToNext()) {
-			albums.add(Album.fromCursor(context, cur));
-		}
-		cur.close();
-		return albums;
+
+	public static void getAllAlbums(final Context context, final LoadedCallback<Album[]> callback) {
+		final Handler mHandler = new Handler();
+		new Thread(new Runnable() {
+			public void run() {
+				Cursor cur = context.getContentResolver().query(
+						MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, 
+						null, 
+						null, 
+						null, 
+						MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
+				final ArrayList<Album> albums = new ArrayList<Album>();
+				while (cur.moveToNext()) {
+					albums.add(Album.fromCursor(context, cur));
+				}
+				cur.close();
+				mHandler.post(new Runnable() {
+					public void run() {
+						if(callback != null)
+							callback.onLoaded(albums.toArray(new Album[0]));
+					}
+				});
+			}
+		}).start();
 	}
-	
+
 	public static Album getAlbum(Context context, String name) {
 		name = name.replace("'", "''");
 		Cursor cur = context.getContentResolver().query(
@@ -132,19 +142,29 @@ public class Album {
 		cur.close();
 		return toreturn;
 	}
-	
-	public static List<Album> getAlbumsForArtist(Context context, String artist) {
-		Cursor cur = context.getContentResolver().query(
-				MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, 
-				null, 
-				MediaStore.Audio.AlbumColumns.ARTIST + " = '" + artist.replace("'", "''") + "'", 
-				null, 
-				MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
-		ArrayList<Album> albums = new ArrayList<Album>();
-		while (cur.moveToNext()) {
-			albums.add(Album.fromCursor(context, cur));
-		}
-		cur.close();
-		return albums;
+
+	public static void getAlbumsForArtist(final Context context, final String artist, final LoadedCallback<Album[]> callback) {
+		final Handler mHandler = new Handler();
+		new Thread(new Runnable() {
+			public void run() {
+				Cursor cur = context.getContentResolver().query(
+						MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, 
+						null, 
+						MediaStore.Audio.AlbumColumns.ARTIST + " = '" + artist.replace("'", "''") + "'", 
+						null, 
+						MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
+				final ArrayList<Album> albums = new ArrayList<Album>();
+				while (cur.moveToNext()) {
+					albums.add(Album.fromCursor(context, cur));
+				}
+				cur.close();
+				mHandler.post(new Runnable() {
+					public void run() {
+						if(callback != null)
+							callback.onLoaded(albums.toArray(new Album[0]));
+					}
+				});
+			}
+		}).start();
 	}
 }

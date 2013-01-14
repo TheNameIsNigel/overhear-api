@@ -1,12 +1,12 @@
 package com.afollestad.overhearapi;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Handler;
 import android.provider.MediaStore;
 
 public class Artist {
@@ -56,21 +56,32 @@ public class Artist {
 		return artist;
 	}
 
-	public static List<Artist> getAllArtists(Context context) {
-		Cursor cur = context.getContentResolver().query(
-				MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI, 
-				null, 
-				null, 
-				null, 
-				MediaStore.Audio.Artists.DEFAULT_SORT_ORDER);
-		ArrayList<Artist> artists = new ArrayList<Artist>();
-		while (cur.moveToNext()) {
-			artists.add(Artist.fromCursor(cur));
-		}
-		cur.close();
-		return artists;
+	public static void getAllArtists(final Context context, final LoadedCallback<Artist[]> callback) {
+		final Handler mHandler = new Handler();
+		new Thread(new Runnable() {
+			public void run() {
+				Cursor cur = context.getContentResolver().query(
+						MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI, 
+						null, 
+						null, 
+						null, 
+						MediaStore.Audio.Artists.DEFAULT_SORT_ORDER);
+				final ArrayList<Artist> artists = new ArrayList<Artist>();
+				while (cur.moveToNext()) {
+					artists.add(Artist.fromCursor(cur));
+				}
+				cur.close();
+				mHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						if(callback != null)
+							callback.onLoaded(artists.toArray(new Artist[0]));
+					}
+				});
+			}
+		}).start();
 	}
-	
+
 	public static Artist getArtist(Context context, String name) {
 		name = name.replace("'", "''");
 		Cursor cur = context.getContentResolver().query(

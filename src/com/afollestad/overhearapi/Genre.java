@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.MediaStore;
 
 public class Genre {
@@ -15,6 +16,7 @@ public class Genre {
 
 	private int id;
 	private String name;
+	private static Uri GENRES_URI = MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI;
 
 	public int getId() {
 		return id;
@@ -57,7 +59,7 @@ public class Genre {
 
 	public static List<Genre> getAllGenres(Context context) {
 		Cursor cur = context.getContentResolver().query(
-				MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI, 
+				GENRES_URI, 
 				null, 
 				null, 
 				null, 
@@ -70,5 +72,26 @@ public class Genre {
 		}
 		return genres;
 	}
-	
+
+	public List<Song> getAllSongs(Context context) {
+		String CONTENTDIR = MediaStore.Audio.Genres.Members.CONTENT_DIRECTORY;
+        Uri uri = Uri.parse(GENRES_URI.toString() + "/" + getId() + "/" + CONTENTDIR);
+		Cursor cur = context.getContentResolver().query(
+				uri, 
+				null, 
+				null, 
+				null, 
+				MediaStore.Audio.Genres.Members.DEFAULT_SORT_ORDER);
+		ArrayList<Song> songs = new ArrayList<Song>();
+		ArrayList<String> foundAlbums = new ArrayList<String>();
+		while (cur.moveToNext()) {
+			String album = cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+			if(foundAlbums.contains(album)) {
+				continue;
+			}
+			foundAlbums.add(album);
+			songs.add(Song.fromCursor(cur));
+		}
+		return songs;
+	}
 }

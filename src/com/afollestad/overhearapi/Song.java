@@ -2,13 +2,13 @@ package com.afollestad.overhearapi;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Handler;
 import android.provider.MediaStore;
 
 public class Song {
@@ -31,49 +31,63 @@ public class Song {
 	public int getId() {
 		return id;
 	}
+
 	public String getDisplayName() {
 		return displayName;
 	}
+
 	public String getMimeType() {
 		return mimeType;
 	}
+
 	public Calendar getDateAdded() {
 		return dateAdded;
 	}
+
 	public Calendar getDateModified() {
 		return dateModified;
 	}
+
 	public String getTitle() {
 		return title;
 	}
-	public long getDuration() { 
+
+	public long getDuration() {
 		return duration;
 	}
+
 	public String getDurationString() {
 		String minute = TimeUnit.MILLISECONDS.toMinutes(getDuration()) + "";
-		String seconds = Long.toString(TimeUnit.MILLISECONDS.toSeconds(getDuration()) - 
-			    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(getDuration()))); 
-		if(seconds.length() == 1) {
+		String seconds = Long.toString(TimeUnit.MILLISECONDS
+				.toSeconds(getDuration())
+				- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
+						.toMinutes(getDuration())));
+		if (seconds.length() == 1) {
 			seconds = "0" + seconds;
 		}
 		return minute + ":" + seconds;
 	}
+
 	public int getTrack() {
 		return track;
 	}
+
 	public String getArtist() {
 		return artist;
 	}
+
 	public String getAlbum() {
 		return album;
 	}
+
 	public int getYear() {
 		return year;
 	}
+
 	public String getData() {
 		return data;
 	}
-	
+
 	public JSONObject getJSON() {
 		JSONObject json = new JSONObject();
 		try {
@@ -89,7 +103,7 @@ public class Song {
 			json.put("album", this.album);
 			json.put("year", this.year);
 			json.put("data", this.data);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return json;
@@ -112,72 +126,107 @@ public class Song {
 			song.album = json.getString("album");
 			song.year = json.getInt("year");
 			song.data = json.getString("data");
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return song;
 	}
-	
-	private static Song fromCursor(Cursor cursor) {
+
+	public static Song fromCursor(Cursor cursor) {
 		Song album = new Song();
 		album.id = cursor.getInt(cursor.getColumnIndex("_id"));
-		album.displayName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
-		album.mimeType = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE));
+		album.displayName = cursor.getString(cursor
+				.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
+		album.mimeType = cursor.getString(cursor
+				.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE));
 		album.dateAdded = Calendar.getInstance();
-		album.dateAdded.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DATE_ADDED)));
+		album.dateAdded.setTimeInMillis(cursor.getLong(cursor
+				.getColumnIndex(MediaStore.Audio.Media.DATE_ADDED)));
 		album.dateModified = Calendar.getInstance();
-		album.dateModified.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED)));
-		album.title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-		album.duration = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
-		album.track = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.TRACK));
-		album.artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-		album.album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-		album.year = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.YEAR));
-		album.data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+		album.dateModified.setTimeInMillis(cursor.getLong(cursor
+				.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED)));
+		album.title = cursor.getString(cursor
+				.getColumnIndex(MediaStore.Audio.Media.TITLE));
+		album.duration = cursor.getLong(cursor
+				.getColumnIndex(MediaStore.Audio.Media.DURATION));
+		album.track = cursor.getInt(cursor
+				.getColumnIndex(MediaStore.Audio.Media.TRACK));
+		album.artist = cursor.getString(cursor
+				.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+		album.album = cursor.getString(cursor
+				.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+		album.year = cursor.getInt(cursor
+				.getColumnIndex(MediaStore.Audio.Media.YEAR));
+		album.data = cursor.getString(cursor
+				.getColumnIndex(MediaStore.Audio.Media.DATA));
 		return album;
 	}
 
-	public static List<Song> getAllSongs(Context context) {
-		Cursor cur = context.getContentResolver().query(
-				MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, 
-				null, 
-				null, 
-				null, 
-				MediaStore.Audio.Media.TITLE);
-		ArrayList<Song> songs = new ArrayList<Song>();
-		while (cur.moveToNext()) {
-			songs.add(Song.fromCursor(cur));
-		}
-		return songs;
+	public static void getAllSongs(final Context context, final LoadedCallback<Song[]> callback) {
+		final Handler mHandler = new Handler();
+		new Thread(new Runnable() {
+			public void run() {
+				Cursor cur = context.getContentResolver().query(
+						MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null,
+						null, null, MediaStore.Audio.Media.TITLE);
+				final ArrayList<Song> songs = new ArrayList<Song>();
+				while (cur.moveToNext()) {
+					songs.add(Song.fromCursor(cur));
+				}
+				mHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						if (callback != null)
+							callback.onLoaded(songs.toArray(new Song[0]));
+					}
+				});
+			}
+		}).start();
 	}
-	
-	public static List<Song> getSongsByAlbum(Context context, String album) {
-		album = album.replace("'", "''");
-		Cursor cur = context.getContentResolver().query(
-				MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, 
-				null, 
-				MediaStore.Audio.Media.ALBUM + " = '" + album + "'", 
-				null, 
-				MediaStore.Audio.Media.TRACK);
-		ArrayList<Song> songs = new ArrayList<Song>();
-		while (cur.moveToNext()) {
-			songs.add(Song.fromCursor(cur));
-		}
-		return songs;
+
+	public static void getSongsByAlbum(final Context context, final String album, final LoadedCallback<Song[]> callback) {
+		final Handler mHandler = new Handler();
+		new Thread(new Runnable() {
+			public void run() {
+				Cursor cur = context.getContentResolver().query(
+						MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null,
+						MediaStore.Audio.Media.ALBUM + " = '" + album.replace("'", "''") + "'", null,
+						MediaStore.Audio.Media.TRACK);
+				final ArrayList<Song> songs = new ArrayList<Song>();
+				while (cur.moveToNext()) {
+					songs.add(Song.fromCursor(cur));
+				}
+				mHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						if (callback != null)
+							callback.onLoaded(songs.toArray(new Song[0]));
+					}
+				});
+			}
+		}).start();
 	}
-	
-	public static List<Song> getSongsByArtist(Context context, String artist) {
-		artist = artist.replace("'", "''");
-		Cursor cur = context.getContentResolver().query(
-				MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, 
-				null, 
-				MediaStore.Audio.Media.ARTIST + " = '" + artist + "'", 
-				null, 
-				MediaStore.Audio.Media.TITLE);
-		ArrayList<Song> songs = new ArrayList<Song>();
-		while (cur.moveToNext()) {
-			songs.add(Song.fromCursor(cur));
-		}
-		return songs;
+
+	public static void getSongsByArtist(final Context context, final String artist, final LoadedCallback<Song[]> callback) {
+		final Handler mHandler = new Handler();
+		new Thread(new Runnable() {
+			public void run() {
+				Cursor cur = context.getContentResolver().query(
+						MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null,
+						MediaStore.Audio.Media.ARTIST + " = '" + artist.replace("'", "''") + "'", null,
+						MediaStore.Audio.Media.TITLE);
+				final ArrayList<Song> songs = new ArrayList<Song>();
+				while (cur.moveToNext()) {
+					songs.add(Song.fromCursor(cur));
+				}
+				mHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						if (callback != null)
+							callback.onLoaded(songs.toArray(new Song[0]));
+					}
+				});
+			}
+		}).start();
 	}
 }
