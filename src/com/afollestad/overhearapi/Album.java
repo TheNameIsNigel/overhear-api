@@ -44,10 +44,10 @@ public class Album {
 	public int getSongCount() {
 		return numSongs;
 	}
-	public Bitmap getAlbumArt(Context context, float widthDp, float heightDp) {
+	public Bitmap getAlbumArt(Context context, int width, int height) {
 		Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
 		Uri uri = ContentUris.withAppendedId(sArtworkUri, getAlbumId());
-		return Utils.loadImage(context, uri, widthDp, heightDp);
+		return Utils.loadImage(context, uri, width, height);
 	}
 
 	public static Album fromCursor(Context context, Cursor cursor) {

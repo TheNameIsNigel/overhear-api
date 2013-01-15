@@ -17,14 +17,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 
 public class Utils {
-
-	public static int convertDpToPx(Context context, float dp) {
-		//Get the screen's density scale
-		final float scale = context.getResources().getDisplayMetrics().density;
-		//Convert the dps to pixels, based on density scale
-		return (int)(dp * scale + 0.5f);
-	}
-
+	
 	public static String loadURLString(String url) throws Exception {
 		BufferedReader in = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
 		StringBuilder builder = new StringBuilder();
@@ -35,12 +28,10 @@ public class Utils {
 		return builder.toString();
 	}
 
-	public static Bitmap loadImage(Context context, Uri uri, float targetWidthDp, float targetHeightDp) {
-		int widthPx = Utils.convertDpToPx(context, targetWidthDp);
-		int heightPx = Utils.convertDpToPx(context, targetHeightDp);
+	public static Bitmap loadImage(Context context, Uri uri, int targetWidth, int targetHeight) {
 		byte[] byteArray = getBytesFromSource(context, uri);
 		if (byteArray != null) {
-			return decodeBitmapFromBytes(context.getResources(), byteArray, widthPx, heightPx);
+			return decodeBitmapFromBytes(context.getResources(), byteArray, targetWidth, targetHeight);
 		}
 		return null;
 	}
