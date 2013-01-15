@@ -42,7 +42,15 @@ public class LastFM {
 				info.artist = json.getString("artist");
 				info.releaseDate = json.getString("releasedate");
 				JSONArray images = json.getJSONArray("image");
-				info.coverUrl = images.getJSONObject(images.length() - 1).getString("#text");
+				for(int i = images.length() - 1; i > 0; i--) {
+					JSONObject img = images.getJSONObject(i);
+					if(img.getString("size").equals("extralarge") || img.getString("size").equals("large")) {
+						info.coverUrl = img.getString("#text");
+					}
+				}
+				if(info.coverUrl == null) {
+					info.coverUrl = images.getJSONObject(images.length() - 1).getString("#text");
+				}
 			} catch(Exception e) {
 				System.out.println(json.toString());
 				throw new java.lang.Error(e.getMessage());
@@ -92,6 +100,12 @@ public class LastFM {
 			try {
 				info.name = json.getString("name");
 				JSONArray images = json.getJSONArray("image");
+//				for(int i = images.length() - 1; i > 0; i--) {
+//					JSONObject img = images.getJSONObject(i);
+//					if(img.getString("size").equals("extralarge") || img.getString("size").equals("large")) {
+//						info.bioImageUrl = img.getString("#text");
+//					}
+//				}
 				info.bioImageUrl = images.getJSONObject(images.length() - 1).getString("#text");
 				JSONObject bio = json.getJSONObject("bio");
 				info.bioPublished = bio.getString("published");

@@ -7,7 +7,6 @@ import org.json.JSONObject;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 
@@ -44,10 +43,9 @@ public class Album {
 	public int getSongCount() {
 		return numSongs;
 	}
-	public Bitmap getAlbumArt(Context context, int width, int height) {
+	public Uri getAlbumArtUri(Context context) {
 		Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
-		Uri uri = ContentUris.withAppendedId(sArtworkUri, getAlbumId());
-		return Utils.loadImage(context, uri, width, height);
+		return ContentUris.withAppendedId(sArtworkUri, getAlbumId());
 	}
 
 	public static Album fromCursor(Context context, Cursor cursor) {
