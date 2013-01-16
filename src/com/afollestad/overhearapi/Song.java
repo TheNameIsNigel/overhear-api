@@ -1,11 +1,15 @@
 package com.afollestad.overhearapi;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.MediaStore;
 
 public class Song {
@@ -106,6 +110,14 @@ public class Song {
 		return json;
 	}
 
+	public static Song fromJSON(String json) {
+		try {
+			return fromJSON(new JSONObject(json));
+		} catch (JSONException e) {
+			e.printStackTrace();
+			throw new Error(e.getMessage());
+		}
+	}
 	public static Song fromJSON(JSONObject json) {
 		Song song = new Song();
 		try {
@@ -157,5 +169,22 @@ public class Song {
 		album.data = cursor.getString(cursor
 				.getColumnIndex(MediaStore.Audio.Media.DATA));
 		return album;
+	}
+
+	public static ArrayList<Song> getAllFromAlbum(Context context, String album, String artist) {
+		artist = artist.replace("'", "''");
+		album = album.replace("'", "''");
+		Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+		String where = MediaStore.Audio.Media.IS_MUSIC + " = 1 " +
+				"AND " + MediaStore.Audio.Media.ARTIST + " = '" + artist + "' " +
+				"AND " + MediaStore.Audio.Media.ALBUM + " = '" + album + "'";
+		String sort = MediaStore.Audio.Media.TRACK;
+		Cursor cursor = context.getContentResolver().query(uri, null, where, null, sort);
+		ArrayList<Song> songs = new ArrayList<Song>();
+		while(cursor.moveToNext()) {
+			songs.add(Song.fromCursor(cursor));
+		}
+		cursor.close();
+		return songs;
 	}
 }
