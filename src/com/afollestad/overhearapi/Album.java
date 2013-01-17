@@ -115,6 +115,7 @@ public class Album {
 		return "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
 				"_id INTEGER PRIMARY KEY," +
 				MediaStore.Audio.AlbumColumns.ALBUM_KEY +" TEXT," +
+				MediaStore.Audio.ArtistColumns.ARTIST_KEY +" TEXT," +
 				MediaStore.Audio.AlbumColumns.ALBUM + " TEXT," +
 				MediaStore.Audio.AlbumColumns.ARTIST + " TEXT," +
 				MediaStore.Audio.AlbumColumns.FIRST_YEAR + " TEXT," +
@@ -127,6 +128,7 @@ public class Album {
 		ContentValues values = new ContentValues(8);
 		values.put("_id", getAlbumId());
 		values.put(MediaStore.Audio.AlbumColumns.ALBUM_KEY, getAlbumKey());
+		values.put(MediaStore.Audio.ArtistColumns.ARTIST_KEY, getArtist().getKey());
 		values.put(MediaStore.Audio.AlbumColumns.ALBUM, getName());
 		values.put(MediaStore.Audio.AlbumColumns.ARTIST, getArtist().getName());
 		values.put(MediaStore.Audio.AlbumColumns.FIRST_YEAR, getFirstYear());
