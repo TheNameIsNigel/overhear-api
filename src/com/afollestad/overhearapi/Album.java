@@ -1,10 +1,9 @@
 package com.afollestad.overhearapi;
 
-import java.util.Calendar;
-
 import org.json.JSONObject;
 
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -18,8 +17,8 @@ public class Album {
 	private String name;
 	private Artist artist;
 	private String albumKey;
-	private Calendar minYear;
-	private Calendar maxYear;
+	private String minYear;
+	private String maxYear;
 	private int numSongs;
 
 	public int getAlbumId() {
@@ -34,10 +33,10 @@ public class Album {
 	public String getAlbumKey() {
 		return albumKey;
 	}
-	public Calendar getFirstYear() {
+	public String getFirstYear() {
 		return minYear;
 	}
-	public Calendar getLastYear() {
+	public String getLastYear() {
 		return maxYear;
 	}
 	public int getSongCount() {
@@ -56,19 +55,8 @@ public class Album {
 				cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ARTIST)),
 				cursor.getString(cursor.getColumnIndex(MediaStore.Audio.ArtistColumns.ARTIST_KEY))); 
 		album.albumKey = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM_KEY));
-		
-		int minYearIndex = cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.FIRST_YEAR);
-		if(minYearIndex > -1) {
-			album.minYear = Calendar.getInstance();
-			album.minYear.setTimeInMillis(cursor.getLong(minYearIndex));
-		}
-		
-		int maxYearIndex = cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.LAST_YEAR);
-		if(maxYearIndex > -1) {
-			album.maxYear = Calendar.getInstance();
-			album.maxYear.setTimeInMillis(cursor.getLong(maxYearIndex));
-		}
-		
+		album.minYear = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.FIRST_YEAR));
+		album.maxYear = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.LAST_YEAR));		
 		album.numSongs = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.NUMBER_OF_SONGS));
 		return album;
 	}
@@ -80,8 +68,8 @@ public class Album {
 			json.put("name", this.name);
 			json.put("artist", this.artist.getJSON().toString());
 			json.put("key", this.albumKey);
-			json.put("min_year", this.minYear.getTimeInMillis());
-			json.put("max_year", this.maxYear.getTimeInMillis());
+			json.put("min_year", this.minYear);
+			json.put("max_year", this.maxYear);
 			json.put("num_songs", this.numSongs);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -96,10 +84,8 @@ public class Album {
 			album.name = json.getString("name");
 			album.artist = Artist.fromJSON(new JSONObject(json.getString("artist")));
 			album.albumKey = json.getString("key");
-			album.minYear = Calendar.getInstance();
-			album.minYear.setTimeInMillis(json.getLong("min_year"));
-			album.maxYear = Calendar.getInstance();
-			album.maxYear.setTimeInMillis(json.getLong("max_year"));
+			album.minYear = json.getString("min_year");
+			album.maxYear = json.getString("max_year");
 			album.numSongs = json.getInt("num_songs");
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -107,12 +93,14 @@ public class Album {
 		return album;
 	}
 
-	public static Album getAlbum(Context context, String name) {
+	public static Album getAlbum(Context context, String name, String artist) {
 		name = name.replace("'", "''");
+		artist = artist.replace("'", "''");
 		Cursor cur = context.getContentResolver().query(
 				MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, 
 				null, 
-				MediaStore.Audio.AlbumColumns.ALBUM + " = '" + name + "'", 
+				MediaStore.Audio.AlbumColumns.ALBUM + " = '" + name + "' AND " +
+						MediaStore.Audio.AlbumColumns.ARTIST + " = '" + artist + "'", 
 				null, 
 				MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
 		Album toreturn = null;
@@ -121,5 +109,29 @@ public class Album {
 		}
 		cur.close();
 		return toreturn;
+	}
+	
+	public static String getCreateTableStatement(String tableName) {
+		return "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
+				"_id INTEGER PRIMARY KEY," +
+				MediaStore.Audio.AlbumColumns.ALBUM_KEY +" TEXT," +
+				MediaStore.Audio.AlbumColumns.ALBUM + " TEXT," +
+				MediaStore.Audio.AlbumColumns.ARTIST + " TEXT," +
+				MediaStore.Audio.AlbumColumns.FIRST_YEAR + " TEXT," +
+				MediaStore.Audio.AlbumColumns.LAST_YEAR + " TEXT," +
+				MediaStore.Audio.AlbumColumns.NUMBER_OF_SONGS + " INTEGER" +
+			");";
+	}
+	
+	public ContentValues getContentValues() {
+		ContentValues values = new ContentValues(8);
+		values.put("_id", getAlbumId());
+		values.put(MediaStore.Audio.AlbumColumns.ALBUM_KEY, getAlbumKey());
+		values.put(MediaStore.Audio.AlbumColumns.ALBUM, getName());
+		values.put(MediaStore.Audio.AlbumColumns.ARTIST, getArtist().getName());
+		values.put(MediaStore.Audio.AlbumColumns.FIRST_YEAR, getFirstYear());
+		values.put(MediaStore.Audio.AlbumColumns.LAST_YEAR, getLastYear());
+		values.put(MediaStore.Audio.AlbumColumns.NUMBER_OF_SONGS, getSongCount());
+		return values;
 	}
 }
