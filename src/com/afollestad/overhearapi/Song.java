@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -186,5 +187,39 @@ public class Song {
 		}
 		cursor.close();
 		return songs;
+	}
+
+	public static String getCreateTableStatement(String tableName) {
+		return "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
+				"_id INTEGER PRIMARY KEY," +
+				MediaStore.Audio.Media.DISPLAY_NAME +" TEXT," +
+				MediaStore.Audio.Media.MIME_TYPE + " TEXT," +
+				MediaStore.Audio.Media.DATE_ADDED + " INTEGER," +
+				MediaStore.Audio.Media.DATE_MODIFIED + " INTEGER," +
+				MediaStore.Audio.Media.TITLE + " TEXT," +
+				MediaStore.Audio.Media.DURATION + " INTEGER," +
+				MediaStore.Audio.Media.TRACK + " INTEGER," +
+				MediaStore.Audio.Media.ARTIST + " TEXT," +
+				MediaStore.Audio.Media.ALBUM + " TEXT," +
+				MediaStore.Audio.Media.YEAR + " INTEGER," +
+				MediaStore.Audio.Media.DATA + " TEXT" +
+			");"; 
+	}
+	
+	public ContentValues getContentValues() {
+		ContentValues values = new ContentValues(12);
+		values.put("_id", getId()); 
+		values.put(MediaStore.Audio.Media.DISPLAY_NAME, getDisplayName()); 
+		values.put(MediaStore.Audio.Media.MIME_TYPE, getMimeType());
+		values.put(MediaStore.Audio.Media.DATE_ADDED, getDateAdded().getTimeInMillis());
+		values.put(MediaStore.Audio.Media.DATE_MODIFIED, getDateModified().getTimeInMillis());
+		values.put(MediaStore.Audio.Media.TITLE, getTitle());
+		values.put(MediaStore.Audio.Media.DURATION, getDuration());
+		values.put(MediaStore.Audio.Media.TRACK, getTrack());
+		values.put(MediaStore.Audio.Media.ARTIST, getArtist());
+		values.put(MediaStore.Audio.Media.ALBUM, getAlbum());
+		values.put(MediaStore.Audio.Media.YEAR, getYear());
+		values.put(MediaStore.Audio.Media.DATA, getData());
+		return values;
 	}
 }
