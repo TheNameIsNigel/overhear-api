@@ -17,6 +17,8 @@ public class Song {
 
 	private Song() { }
 
+	public final static String DATE_QUEUED = "date_queued";
+	
 	private int id;
 	private String displayName;
 	private String mimeType;
@@ -29,8 +31,9 @@ public class Song {
 	private String album;
 	private int year;
 	private String data;
+	private Calendar dateQueued; 
 
-	public int getId() {
+ 	public int getId() {
 		return id;
 	}
 
@@ -90,6 +93,14 @@ public class Song {
 		return data;
 	}
 
+	public void setDateQueued(Calendar date) {
+		dateQueued = date;
+	}
+	
+	public Calendar getDateQueued() {
+		return dateQueued;
+	}
+	
 	public JSONObject getJSON() {
 		JSONObject json = new JSONObject();
 		try {
@@ -105,6 +116,9 @@ public class Song {
 			json.put("album", this.album);
 			json.put("year", this.year);
 			json.put("data", this.data);
+			if(dateQueued != null) {
+				json.put(DATE_QUEUED, dateQueued.getTimeInMillis());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -136,6 +150,10 @@ public class Song {
 			song.album = json.getString("album");
 			song.year = json.getInt("year");
 			song.data = json.getString("data");
+			if(json.has(DATE_QUEUED)) {
+				song.dateQueued = Calendar.getInstance();
+				song.dateQueued.setTimeInMillis(json.getLong(DATE_QUEUED));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -169,6 +187,11 @@ public class Song {
 				.getColumnIndex(MediaStore.Audio.Media.YEAR));
 		album.data = cursor.getString(cursor
 				.getColumnIndex(MediaStore.Audio.Media.DATA));
+		int dateQueuedIndex = cursor.getColumnIndex(DATE_QUEUED);
+		if(dateQueuedIndex > -1) {
+			album.dateQueued = Calendar.getInstance();
+			album.dateQueued.setTimeInMillis(cursor.getLong(dateQueuedIndex));
+		}
 		return album;
 	}
 
@@ -202,12 +225,13 @@ public class Song {
 				MediaStore.Audio.Media.ARTIST + " TEXT," +
 				MediaStore.Audio.Media.ALBUM + " TEXT," +
 				MediaStore.Audio.Media.YEAR + " INTEGER," +
-				MediaStore.Audio.Media.DATA + " TEXT" +
+				MediaStore.Audio.Media.DATA + " TEXT," +
+				DATE_QUEUED + " INTEGER" +
 			");"; 
 	}
 	
 	public ContentValues getContentValues() {
-		ContentValues values = new ContentValues(12);
+		ContentValues values = new ContentValues();
 		values.put("_id", getId()); 
 		values.put(MediaStore.Audio.Media.DISPLAY_NAME, getDisplayName()); 
 		values.put(MediaStore.Audio.Media.MIME_TYPE, getMimeType());
@@ -220,6 +244,8 @@ public class Song {
 		values.put(MediaStore.Audio.Media.ALBUM, getAlbum());
 		values.put(MediaStore.Audio.Media.YEAR, getYear());
 		values.put(MediaStore.Audio.Media.DATA, getData());
+		if(getDateQueued() != null)
+			values.put("date_queued", getDateQueued().getTimeInMillis());
 		return values;
 	}
 }
