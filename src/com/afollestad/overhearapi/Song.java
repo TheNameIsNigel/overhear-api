@@ -216,6 +216,17 @@ public class Song {
 		return album;
 	}
 
+	public static ArrayList<Song> getAllFromScope(Context context, String[] scope) {
+		Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+		Cursor cursor = context.getContentResolver().query(uri, null, scope[0], null, scope[1]);
+		ArrayList<Song> songs = new ArrayList<Song>();
+		while(cursor.moveToNext()) {
+			songs.add(Song.fromCursor(cursor));
+		}
+		cursor.close();
+		return songs;
+	}
+	
 	public static ArrayList<Song> getAllFromAlbum(Context context, String album, String artist) {
 		artist = artist.replace("'", "''");
 		album = album.replace("'", "''");
