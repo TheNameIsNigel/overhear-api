@@ -17,6 +17,7 @@ public class Song {
 
 	private Song() { }
 
+	public final static String NOW_PLAYING = "is_playing";
 	public final static String DATE_QUEUED = "date_queued";
 	
 	private int id;
@@ -32,6 +33,7 @@ public class Song {
 	private int year;
 	private String data;
 	private Calendar dateQueued; 
+	private boolean isPlaying;
 
  	public int getId() {
 		return id;
@@ -98,7 +100,17 @@ public class Song {
 	}
 	
 	public Calendar getDateQueued() {
+		if(dateQueued == null)
+			dateQueued = Calendar.getInstance();
 		return dateQueued;
+	}
+	
+	public boolean isPlaying() {
+		return isPlaying;
+	}
+	
+	public void setIsPlaying(boolean playing) {
+		isPlaying = playing;
 	}
 	
 	public JSONObject getJSON() {
@@ -119,6 +131,7 @@ public class Song {
 			if(dateQueued != null) {
 				json.put(DATE_QUEUED, dateQueued.getTimeInMillis());
 			}
+			json.put(NOW_PLAYING, this.isPlaying);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -154,6 +167,7 @@ public class Song {
 				song.dateQueued = Calendar.getInstance();
 				song.dateQueued.setTimeInMillis(json.getLong(DATE_QUEUED));
 			}
+			song.isPlaying = json.getBoolean(NOW_PLAYING);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -187,11 +201,18 @@ public class Song {
 				.getColumnIndex(MediaStore.Audio.Media.YEAR));
 		album.data = cursor.getString(cursor
 				.getColumnIndex(MediaStore.Audio.Media.DATA));
+		
 		int dateQueuedIndex = cursor.getColumnIndex(DATE_QUEUED);
 		if(dateQueuedIndex > -1) {
 			album.dateQueued = Calendar.getInstance();
 			album.dateQueued.setTimeInMillis(cursor.getLong(dateQueuedIndex));
 		}
+		
+		int isPlayingIndex = cursor.getColumnIndex(NOW_PLAYING);
+		if(isPlayingIndex > -1) {
+			album.isPlaying = (cursor.getInt(isPlayingIndex) == 1);
+		}
+		
 		return album;
 	}
 
@@ -214,7 +235,8 @@ public class Song {
 
 	public static String getCreateTableStatement(String tableName) {
 		return "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
-				"_id INTEGER PRIMARY KEY," +
+				DATE_QUEUED + " INTEGER PRIMARY KEY," +
+				"_id INTEGER," +
 				MediaStore.Audio.Media.DISPLAY_NAME +" TEXT," +
 				MediaStore.Audio.Media.MIME_TYPE + " TEXT," +
 				MediaStore.Audio.Media.DATE_ADDED + " INTEGER," +
@@ -226,11 +248,11 @@ public class Song {
 				MediaStore.Audio.Media.ALBUM + " TEXT," +
 				MediaStore.Audio.Media.YEAR + " INTEGER," +
 				MediaStore.Audio.Media.DATA + " TEXT," +
-				DATE_QUEUED + " INTEGER" +
+				NOW_PLAYING + " INTEGER" +
 			");"; 
 	}
 	
-	public ContentValues getContentValues() {
+	public ContentValues getContentValues(boolean forQueue) {
 		ContentValues values = new ContentValues();
 		values.put("_id", getId()); 
 		values.put(MediaStore.Audio.Media.DISPLAY_NAME, getDisplayName()); 
@@ -244,8 +266,12 @@ public class Song {
 		values.put(MediaStore.Audio.Media.ALBUM, getAlbum());
 		values.put(MediaStore.Audio.Media.YEAR, getYear());
 		values.put(MediaStore.Audio.Media.DATA, getData());
-		if(getDateQueued() != null)
-			values.put("date_queued", getDateQueued().getTimeInMillis());
+		
+		if(forQueue) {
+			values.put(DATE_QUEUED, getDateQueued().getTimeInMillis());
+			values.put(NOW_PLAYING, isPlaying() ? 1 : 0);
+		}
+		
 		return values;
 	}
 }
