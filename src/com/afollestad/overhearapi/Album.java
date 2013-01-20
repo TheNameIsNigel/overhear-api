@@ -1,5 +1,7 @@
 package com.afollestad.overhearapi;
 
+import java.util.Calendar;
+
 import org.json.JSONObject;
 
 import android.content.ContentUris;
@@ -20,6 +22,7 @@ public class Album {
 	private String minYear;
 	private String maxYear;
 	private int numSongs;
+	private Calendar dateQueued;
 
 	public int getAlbumId() {
 		return albumId;
@@ -46,7 +49,15 @@ public class Album {
 		Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
 		return ContentUris.withAppendedId(sArtworkUri, getAlbumId());
 	}
-
+	public void setDateQueued(Calendar date) {
+		dateQueued = date;
+	}
+	public Calendar getDateQueued() {
+		if(dateQueued == null)
+			dateQueued = Calendar.getInstance();
+		return dateQueued;
+	}
+	
 	public static Album fromCursor(Context context, Cursor cursor) {
 		Album album = new Album();
 		album.albumId = cursor.getInt(cursor.getColumnIndex("_id"));
@@ -58,6 +69,13 @@ public class Album {
 		album.minYear = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.FIRST_YEAR));
 		album.maxYear = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.LAST_YEAR));		
 		album.numSongs = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.NUMBER_OF_SONGS));
+		
+		int dateQueued = cursor.getColumnIndex(Song.DATE_QUEUED);
+		if(dateQueued > -1) {
+			album.dateQueued = Calendar.getInstance();
+			album.dateQueued.setTimeInMillis(cursor.getLong(dateQueued));
+		}
+		
 		return album;
 	}
 
@@ -71,6 +89,7 @@ public class Album {
 			json.put("min_year", this.minYear);
 			json.put("max_year", this.maxYear);
 			json.put("num_songs", this.numSongs);
+			json.put(Song.DATE_QUEUED, this.dateQueued.getTimeInMillis());
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -87,6 +106,8 @@ public class Album {
 			album.minYear = json.getString("min_year");
 			album.maxYear = json.getString("max_year");
 			album.numSongs = json.getInt("num_songs");
+			album.dateQueued = Calendar.getInstance();
+			album.dateQueued.setTimeInMillis(json.getLong(Song.DATE_QUEUED));
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -113,7 +134,8 @@ public class Album {
 	
 	public static String getCreateTableStatement(String tableName) {
 		return "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
-				"_id INTEGER PRIMARY KEY," +
+				Song.DATE_QUEUED + " INTEGER PRIMARY KEY," +
+				"_id INTEGER," +
 				MediaStore.Audio.AlbumColumns.ALBUM_KEY +" TEXT," +
 				MediaStore.Audio.ArtistColumns.ARTIST_KEY +" TEXT," +
 				MediaStore.Audio.AlbumColumns.ALBUM + " TEXT," +
@@ -124,8 +146,8 @@ public class Album {
 			");";
 	}
 	
-	public ContentValues getContentValues() {
-		ContentValues values = new ContentValues(8);
+	public ContentValues getContentValues(boolean forRecents) {
+		ContentValues values = new ContentValues();
 		values.put("_id", getAlbumId());
 		values.put(MediaStore.Audio.AlbumColumns.ALBUM_KEY, getAlbumKey());
 		values.put(MediaStore.Audio.ArtistColumns.ARTIST_KEY, getArtist().getKey());
@@ -134,6 +156,9 @@ public class Album {
 		values.put(MediaStore.Audio.AlbumColumns.FIRST_YEAR, getFirstYear());
 		values.put(MediaStore.Audio.AlbumColumns.LAST_YEAR, getLastYear());
 		values.put(MediaStore.Audio.AlbumColumns.NUMBER_OF_SONGS, getSongCount());
+		if(forRecents) {
+			values.put(Song.DATE_QUEUED, getDateQueued().getTimeInMillis());
+		}
 		return values;
 	}
 }

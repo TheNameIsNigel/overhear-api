@@ -66,11 +66,15 @@ public class Song {
 	}
 
 	public String getDurationString() {
-		String minute = TimeUnit.MILLISECONDS.toMinutes(getDuration()) + "";
+		return getDurationString(getDuration());
+	}
+	
+	public static String getDurationString(long milliseconds) {
+		String minute = TimeUnit.MILLISECONDS.toMinutes(milliseconds) + "";
 		String seconds = Long.toString(TimeUnit.MILLISECONDS
-				.toSeconds(getDuration())
+				.toSeconds(milliseconds)
 				- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
-						.toMinutes(getDuration())));
+						.toMinutes(milliseconds)));
 		if (seconds.length() == 1) {
 			seconds = "0" + seconds;
 		}
