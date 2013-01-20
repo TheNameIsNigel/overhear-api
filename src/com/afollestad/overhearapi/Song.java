@@ -19,6 +19,7 @@ public class Song {
 
 	public final static String NOW_PLAYING = "is_playing";
 	public final static String DATE_QUEUED = "date_queued";
+	public final static String QUEUE_FOCUS = "has_focus";
 	
 	private int id;
 	private String displayName;
@@ -34,6 +35,7 @@ public class Song {
 	private String data;
 	private Calendar dateQueued; 
 	private boolean isPlaying;
+	private boolean hasFocus;
 
  	public int getId() {
 		return id;
@@ -113,6 +115,14 @@ public class Song {
 		isPlaying = playing;
 	}
 	
+	public boolean hasFocus() {
+		return hasFocus;
+	}
+	
+	public void setHasFocus(boolean focus) {
+		hasFocus = focus;
+	}
+	
 	public JSONObject getJSON() {
 		JSONObject json = new JSONObject();
 		try {
@@ -132,6 +142,7 @@ public class Song {
 				json.put(DATE_QUEUED, dateQueued.getTimeInMillis());
 			}
 			json.put(NOW_PLAYING, this.isPlaying);
+			json.put(QUEUE_FOCUS, this.hasFocus);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -168,6 +179,7 @@ public class Song {
 				song.dateQueued.setTimeInMillis(json.getLong(DATE_QUEUED));
 			}
 			song.isPlaying = json.getBoolean(NOW_PLAYING);
+			song.hasFocus = json.getBoolean(QUEUE_FOCUS);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -211,6 +223,11 @@ public class Song {
 		int isPlayingIndex = cursor.getColumnIndex(NOW_PLAYING);
 		if(isPlayingIndex > -1) {
 			album.isPlaying = (cursor.getInt(isPlayingIndex) == 1);
+		}
+		
+		int hasFocusIndex = cursor.getColumnIndex(QUEUE_FOCUS);
+		if(hasFocusIndex > -1) {
+			album.hasFocus = (cursor.getInt(hasFocusIndex) == 1);
 		}
 		
 		return album;
@@ -259,7 +276,8 @@ public class Song {
 				MediaStore.Audio.Media.ALBUM + " TEXT," +
 				MediaStore.Audio.Media.YEAR + " INTEGER," +
 				MediaStore.Audio.Media.DATA + " TEXT," +
-				NOW_PLAYING + " INTEGER" +
+				NOW_PLAYING + " INTEGER," +
+				QUEUE_FOCUS + " INTEGER" +
 			");"; 
 	}
 	
@@ -281,6 +299,7 @@ public class Song {
 		if(forQueue) {
 			values.put(DATE_QUEUED, getDateQueued().getTimeInMillis());
 			values.put(NOW_PLAYING, isPlaying() ? 1 : 0);
+			values.put(QUEUE_FOCUS, hasFocus() ? 1 : 0);
 		}
 		
 		return values;
