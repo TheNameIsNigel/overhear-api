@@ -70,6 +70,11 @@ public class Song {
 	}
 	
 	public static String getDurationString(long milliseconds) {
+		if(milliseconds == 0) {
+			return "0:00";
+		} else if((milliseconds % 1000) == 0) {
+			return (milliseconds / 1000) + ":00";
+		}
 		String minute = TimeUnit.MILLISECONDS.toMinutes(milliseconds) + "";
 		String seconds = Long.toString(TimeUnit.MILLISECONDS
 				.toSeconds(milliseconds)
