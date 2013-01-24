@@ -1,17 +1,16 @@
 package com.afollestad.overhearapi;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 public class Song {
 
@@ -187,8 +186,10 @@ public class Song {
 				song.dateQueued = Calendar.getInstance();
 				song.dateQueued.setTimeInMillis(json.getLong(DATE_QUEUED));
 			}
-			song.isPlaying = json.getBoolean(NOW_PLAYING);
-			song.hasFocus = json.getBoolean(QUEUE_FOCUS);
+            if(json.has(NOW_PLAYING))
+			    song.isPlaying = json.getBoolean(NOW_PLAYING);
+            if(json.has(QUEUE_FOCUS))
+			    song.hasFocus = json.getBoolean(QUEUE_FOCUS);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

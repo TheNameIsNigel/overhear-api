@@ -1,15 +1,14 @@
 package com.afollestad.overhearapi;
 
-import java.util.Calendar;
-
-import org.json.JSONObject;
-
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import org.json.JSONObject;
+
+import java.util.Calendar;
 
 public class Album {
 
@@ -89,7 +88,8 @@ public class Album {
 			json.put("min_year", this.minYear);
 			json.put("max_year", this.maxYear);
 			json.put("num_songs", this.numSongs);
-			json.put(Song.DATE_QUEUED, this.dateQueued.getTimeInMillis());
+            if(this.dateQueued != null)
+			    json.put(Song.DATE_QUEUED, this.dateQueued.getTimeInMillis());
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -106,8 +106,10 @@ public class Album {
 			album.minYear = json.getString("min_year");
 			album.maxYear = json.getString("max_year");
 			album.numSongs = json.getInt("num_songs");
-			album.dateQueued = Calendar.getInstance();
-			album.dateQueued.setTimeInMillis(json.getLong(Song.DATE_QUEUED));
+            if(json.has(Song.DATE_QUEUED)) {
+			    album.dateQueued = Calendar.getInstance();
+			    album.dateQueued.setTimeInMillis(json.getLong(Song.DATE_QUEUED));
+            }
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
