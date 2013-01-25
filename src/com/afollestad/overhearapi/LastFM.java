@@ -1,12 +1,11 @@
 package com.afollestad.overhearapi;
 
-import java.net.URLEncoder;
-
+import android.text.Html;
+import android.text.Spanned;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.text.Html;
-import android.text.Spanned;
+import java.net.URLEncoder;
 
 public class LastFM {
 
@@ -42,7 +41,7 @@ public class LastFM {
 				info.artist = json.getString("artist");
 				info.releaseDate = json.getString("releasedate");
 				JSONArray images = json.getJSONArray("image");
-				info.coverUrl = images.getJSONObject(images.length() - 1).getString("#text");
+				info.coverUrl = images.getJSONObject(images.length() - 2).getString("#text");
 			} catch(Exception e) {
 				System.out.println(json.toString());
 				throw new java.lang.Error(e.getMessage());
@@ -98,7 +97,7 @@ public class LastFM {
 //						info.bioImageUrl = img.getString("#text");
 //					}
 //				}
-				info.bioImageUrl = images.getJSONObject(images.length() - 1).getString("#text");
+				info.bioImageUrl = images.getJSONObject(images.length() - 2).getString("#text");
 				JSONObject bio = json.getJSONObject("bio");
 				info.bioPublished = bio.getString("published");
 				info.bioSummary = bio.getString("summary");
