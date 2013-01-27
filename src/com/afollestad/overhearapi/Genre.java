@@ -1,14 +1,14 @@
 package com.afollestad.overhearapi;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Genre {
 
@@ -45,6 +45,15 @@ public class Genre {
 		}
 		return json;
 	}
+
+    public static Genre fromJSON(String json) {
+        try {
+            return fromJSON(new JSONObject(json));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw new Error(e.getMessage());
+        }
+    }
 
 	public static Genre fromJSON(JSONObject json) {
 		Genre genre = new Genre();
