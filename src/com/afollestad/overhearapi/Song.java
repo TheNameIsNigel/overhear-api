@@ -16,11 +16,12 @@ public class Song {
 
 	private Song() { }
 
+    public final static String QUEUE_ID = "queue_id";
 	public final static String NOW_PLAYING = "is_playing";
-	public final static String DATE_QUEUED = "date_queued";
 	public final static String QUEUE_FOCUS = "has_focus";
 	
 	private int id;
+    private int queueId = -1;
 	private String displayName;
 	private String mimeType;
 	private Calendar dateAdded;
@@ -32,13 +33,16 @@ public class Song {
 	private String album;
 	private int year;
 	private String data;
-	private Calendar dateQueued; 
 	private boolean isPlaying;
 	private boolean hasFocus;
 
  	public int getId() {
 		return id;
 	}
+
+    public int getQueueId() {
+        return queueId;
+    }
 
 	public String getDisplayName() {
 		return displayName;
@@ -104,16 +108,6 @@ public class Song {
 	public String getData() {
 		return data;
 	}
-
-	public void setDateQueued(Calendar date) {
-		dateQueued = date;
-	}
-	
-	public Calendar getDateQueued() {
-		if(dateQueued == null)
-			dateQueued = Calendar.getInstance();
-		return dateQueued;
-	}
 	
 	public boolean isPlaying() {
 		return isPlaying;
@@ -122,6 +116,10 @@ public class Song {
 	public void setIsPlaying(boolean playing) {
 		isPlaying = playing;
 	}
+
+    public void setQueueId(int queueId) {
+        this.queueId = queueId;
+    }
 	
 	public boolean hasFocus() {
 		return hasFocus;
@@ -146,11 +144,10 @@ public class Song {
 			json.put("album", this.album);
 			json.put("year", this.year);
 			json.put("data", this.data);
-			if(dateQueued != null) {
-				json.put(DATE_QUEUED, dateQueued.getTimeInMillis());
+			if(queueId > -1) {
+                json.put(NOW_PLAYING, this.isPlaying);
+                json.put(QUEUE_FOCUS, this.hasFocus);
 			}
-			json.put(NOW_PLAYING, this.isPlaying);
-			json.put(QUEUE_FOCUS, this.hasFocus);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -182,14 +179,12 @@ public class Song {
 			song.album = json.getString("album");
 			song.year = json.getInt("year");
 			song.data = json.getString("data");
-			if(json.has(DATE_QUEUED)) {
-				song.dateQueued = Calendar.getInstance();
-				song.dateQueued.setTimeInMillis(json.getLong(DATE_QUEUED));
-			}
-            if(json.has(NOW_PLAYING))
+
+            if(json.has(QUEUE_ID)) {
+                song.queueId = json.getInt(QUEUE_ID);
 			    song.isPlaying = json.getBoolean(NOW_PLAYING);
-            if(json.has(QUEUE_FOCUS))
 			    song.hasFocus = json.getBoolean(QUEUE_FOCUS);
+            }
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -223,22 +218,13 @@ public class Song {
 				.getColumnIndex(MediaStore.Audio.Media.YEAR));
 		album.data = cursor.getString(cursor
 				.getColumnIndex(MediaStore.Audio.Media.DATA));
-		
-		int dateQueuedIndex = cursor.getColumnIndex(DATE_QUEUED);
-		if(dateQueuedIndex > -1) {
-			album.dateQueued = Calendar.getInstance();
-			album.dateQueued.setTimeInMillis(cursor.getLong(dateQueuedIndex));
-		}
-		
-		int isPlayingIndex = cursor.getColumnIndex(NOW_PLAYING);
-		if(isPlayingIndex > -1) {
-			album.isPlaying = (cursor.getInt(isPlayingIndex) == 1);
-		}
-		
-		int hasFocusIndex = cursor.getColumnIndex(QUEUE_FOCUS);
-		if(hasFocusIndex > -1) {
-			album.hasFocus = (cursor.getInt(hasFocusIndex) == 1);
-		}
+
+        int queueIdIndex = cursor.getColumnIndex(QUEUE_ID);
+        if(queueIdIndex > -1) {
+            album.queueId = cursor.getInt(queueIdIndex);
+            album.isPlaying = (cursor.getInt(cursor.getColumnIndex(NOW_PLAYING)) == 1);
+            album.hasFocus = (cursor.getInt(cursor.getColumnIndex(QUEUE_FOCUS)) == 1);
+        }
 		
 		return album;
 	}
@@ -253,27 +239,10 @@ public class Song {
 		cursor.close();
 		return songs;
 	}
-	
-	public static ArrayList<Song> getAllFromAlbum(Context context, String album, String artist) {
-		artist = artist.replace("'", "''");
-		album = album.replace("'", "''");
-		Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-		String where = MediaStore.Audio.Media.IS_MUSIC + " = 1 " +
-				"AND " + MediaStore.Audio.Media.ARTIST + " = '" + artist + "' " +
-				"AND " + MediaStore.Audio.Media.ALBUM + " = '" + album + "'";
-		String sort = MediaStore.Audio.Media.TRACK;
-		Cursor cursor = context.getContentResolver().query(uri, null, where, null, sort);
-		ArrayList<Song> songs = new ArrayList<Song>();
-		while(cursor.moveToNext()) {
-			songs.add(Song.fromCursor(cursor));
-		}
-		cursor.close();
-		return songs;
-	}
 
 	public static String getCreateTableStatement(String tableName) {
 		return "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
-				DATE_QUEUED + " INTEGER PRIMARY KEY," +
+				QUEUE_ID + " INTEGER PRIMARY KEY," +
 				"_id INTEGER," +
 				MediaStore.Audio.Media.DISPLAY_NAME +" TEXT," +
 				MediaStore.Audio.Media.MIME_TYPE + " TEXT," +
@@ -307,7 +276,7 @@ public class Song {
 		values.put(MediaStore.Audio.Media.DATA, getData());
 		
 		if(forQueue) {
-			values.put(DATE_QUEUED, getDateQueued().getTimeInMillis());
+			values.put(QUEUE_ID, getQueueId());
 			values.put(NOW_PLAYING, isPlaying() ? 1 : 0);
 			values.put(QUEUE_FOCUS, hasFocus() ? 1 : 0);
 		}

@@ -8,8 +8,6 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import org.json.JSONObject;
 
-import java.util.Calendar;
-
 public class Album {
 
 	private Album() { }
@@ -21,7 +19,7 @@ public class Album {
 	private String minYear;
 	private String maxYear;
 	private int numSongs;
-	private Calendar dateQueued;
+	private int queueId = -1;
 
 	public int getAlbumId() {
 		return albumId;
@@ -48,13 +46,11 @@ public class Album {
 		Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
 		return ContentUris.withAppendedId(sArtworkUri, getAlbumId());
 	}
-	public void setDateQueued(Calendar date) {
-		dateQueued = date;
+	public void setQueueId(int queueId) {
+		this.queueId = queueId;
 	}
-	public Calendar getDateQueued() {
-		if(dateQueued == null)
-			dateQueued = Calendar.getInstance();
-		return dateQueued;
+	public int getQueueId() {
+		return queueId;
 	}
 	
 	public static Album fromCursor(Context context, Cursor cursor) {
@@ -69,10 +65,9 @@ public class Album {
 		album.maxYear = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.LAST_YEAR));		
 		album.numSongs = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.NUMBER_OF_SONGS));
 		
-		int dateQueued = cursor.getColumnIndex(Song.DATE_QUEUED);
-		if(dateQueued > -1) {
-			album.dateQueued = Calendar.getInstance();
-			album.dateQueued.setTimeInMillis(cursor.getLong(dateQueued));
+		int queueIdIndex = cursor.getColumnIndex(Song.QUEUE_ID);
+		if(queueIdIndex > -1) {
+			album.queueId = cursor.getInt(queueIdIndex);
 		}
 		
 		return album;
@@ -88,8 +83,8 @@ public class Album {
 			json.put("min_year", this.minYear);
 			json.put("max_year", this.maxYear);
 			json.put("num_songs", this.numSongs);
-            if(this.dateQueued != null)
-			    json.put(Song.DATE_QUEUED, this.dateQueued.getTimeInMillis());
+            if(this.queueId > -1)
+			    json.put(Song.QUEUE_ID, this.queueId);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -106,9 +101,8 @@ public class Album {
 			album.minYear = json.getString("min_year");
 			album.maxYear = json.getString("max_year");
 			album.numSongs = json.getInt("num_songs");
-            if(json.has(Song.DATE_QUEUED)) {
-			    album.dateQueued = Calendar.getInstance();
-			    album.dateQueued.setTimeInMillis(json.getLong(Song.DATE_QUEUED));
+            if(json.has(Song.QUEUE_ID)) {
+			    album.queueId = json.getInt(Song.QUEUE_ID);
             }
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -136,7 +130,7 @@ public class Album {
 	
 	public static String getCreateTableStatement(String tableName) {
 		return "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
-				Song.DATE_QUEUED + " INTEGER PRIMARY KEY," +
+				Song.QUEUE_ID + " INTEGER PRIMARY KEY," +
 				"_id INTEGER," +
 				MediaStore.Audio.AlbumColumns.ALBUM_KEY +" TEXT," +
 				MediaStore.Audio.ArtistColumns.ARTIST_KEY +" TEXT," +
@@ -159,7 +153,7 @@ public class Album {
 		values.put(MediaStore.Audio.AlbumColumns.LAST_YEAR, getLastYear());
 		values.put(MediaStore.Audio.AlbumColumns.NUMBER_OF_SONGS, getSongCount());
 		if(forRecents) {
-			values.put(Song.DATE_QUEUED, getDateQueued().getTimeInMillis());
+			values.put(Song.QUEUE_ID, getQueueId());
 		}
 		return values;
 	}
