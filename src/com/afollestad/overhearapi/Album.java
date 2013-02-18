@@ -19,7 +19,7 @@ public class Album {
 	private String minYear;
 	private String maxYear;
 	private int numSongs;
-	private int queueId = -1;
+	private long queueId = -1;
 
 	public int getAlbumId() {
 		return albumId;
@@ -46,14 +46,14 @@ public class Album {
 		Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
 		return ContentUris.withAppendedId(sArtworkUri, getAlbumId());
 	}
-	public void setQueueId(int queueId) {
+	public void setQueueId(long queueId) {
 		this.queueId = queueId;
 	}
-	public int getQueueId() {
+	public long getQueueId() {
 		return queueId;
 	}
 	
-	public static Album fromCursor(Context context, Cursor cursor) {
+	public static Album fromCursor(Cursor cursor) {
 		Album album = new Album();
 		album.albumId = cursor.getInt(cursor.getColumnIndex("_id"));
 		album.name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM));
@@ -67,7 +67,7 @@ public class Album {
 		
 		int queueIdIndex = cursor.getColumnIndex(Song.QUEUE_ID);
 		if(queueIdIndex > -1) {
-			album.queueId = cursor.getInt(queueIdIndex);
+			album.queueId = cursor.getLong(queueIdIndex);
 		}
 		
 		return album;
@@ -122,7 +122,7 @@ public class Album {
 				MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
 		Album toreturn = null;
 		if(cur.moveToFirst()) {
-			toreturn = Album.fromCursor(context, cur); 
+			toreturn = Album.fromCursor(cur);
 		}
 		cur.close();
 		return toreturn;
