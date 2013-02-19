@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URLEncoder;
+import java.util.Locale;
 
 public class LastFM {
 
@@ -115,8 +116,9 @@ public class LastFM {
 		String url = "http://ws.audioscrobbler.com/2.0/?method=album.getinfo" +
 				"&artist=" + URLEncoder.encode(artist, "UTF-8") +
 				"&album=" + URLEncoder.encode(album, "UTF-8") +
-				"&api_key=" + API_KEY + 
-				"&format=json";
+				"&api_key=" + API_KEY +
+                "&lang=" + Locale.getDefault().getLanguage() +
+                "&format=json";
 		JSONObject urlContents = new JSONObject(Utils.loadURLString(url));
 		if(urlContents.has("error")) {
 			throw new Exception(urlContents.getString("message"));
@@ -125,8 +127,11 @@ public class LastFM {
 	}
 	
 	public static ArtistInfo getArtistInfo(String artist) throws Exception {
-		String url = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=" + 
-				URLEncoder.encode(artist, "UTF-8") + "&api_key=" + API_KEY + "&format=json";
+		String url = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo" +
+                "&artist=" + URLEncoder.encode(artist, "UTF-8") +
+                "&api_key=" + API_KEY +
+                "&lang=" + Locale.getDefault().getLanguage() +
+                "&format=json";
 		JSONObject urlContents = new JSONObject(Utils.loadURLString(url));
 		if(urlContents.has("error")) {
 			throw new Exception(urlContents.getString("message"));
