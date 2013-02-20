@@ -11,6 +11,10 @@ import org.json.JSONObject;
 public class Album {
 
 	private Album() { }
+    public Album(String name, String artist) {
+        this.name = name;
+        this.artist = new Artist(artist, null);
+    }
 
 	private int albumId;
 	private String name;
