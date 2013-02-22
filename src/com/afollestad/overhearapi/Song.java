@@ -36,7 +36,7 @@ public class Song {
 	private String data;
 	private boolean isPlaying;
 	private boolean hasFocus;
-    private long fromPlaylist;
+    private long fromPlaylist = -1l;
 
  	public int getId() {
 		return id;
