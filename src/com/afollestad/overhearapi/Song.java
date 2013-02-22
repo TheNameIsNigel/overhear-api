@@ -35,6 +35,7 @@ public class Song {
 	private String data;
 	private boolean isPlaying;
 	private boolean hasFocus;
+    private long fromPlaylist;
 
  	public int getId() {
 		return id;
@@ -108,7 +109,16 @@ public class Song {
 	public String getData() {
 		return data;
 	}
-	
+
+    public long getFromPlaylist() {
+        return fromPlaylist;
+    }
+
+    public Song setFromPlaylist(long id) {
+        fromPlaylist = id;
+        return this;
+    }
+
 	public boolean isPlaying() {
 		return isPlaying;
 	}
@@ -231,14 +241,18 @@ public class Song {
 
 	public static ArrayList<Song> getAllFromScope(Context context, String[] scope) {
 		Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-		Cursor cursor = context.getContentResolver().query(uri, null, scope[0], null, scope[1]);
-		ArrayList<Song> songs = new ArrayList<Song>();
-		while(cursor.moveToNext()) {
-			songs.add(Song.fromCursor(cursor));
-		}
-		cursor.close();
-		return songs;
+		return getAllFromUri(context, uri, scope[0], scope[1]);
 	}
+
+    public static ArrayList<Song> getAllFromUri(Context context, Uri uri, String where, String sort) {
+        Cursor cursor = context.getContentResolver().query(uri, null, where, null, sort);
+        ArrayList<Song> songs = new ArrayList<Song>();
+        while(cursor.moveToNext()) {
+            songs.add(Song.fromCursor(cursor));
+        }
+        cursor.close();
+        return songs;
+    }
 
 	public static String getCreateTableStatement(String tableName) {
 		return "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
