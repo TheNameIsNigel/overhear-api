@@ -19,6 +19,7 @@ public class Song {
     public final static String QUEUE_ID = "queue_id";
 	public final static String NOW_PLAYING = "is_playing";
 	public final static String QUEUE_FOCUS = "has_focus";
+    public final static String PLAYLIST_ID = "playlist_id";
 	
 	private int id;
     private int queueId = -1;
@@ -157,6 +158,7 @@ public class Song {
 			if(queueId > -1) {
                 json.put(NOW_PLAYING, this.isPlaying);
                 json.put(QUEUE_FOCUS, this.hasFocus);
+                json.put(PLAYLIST_ID, this.fromPlaylist);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -194,6 +196,7 @@ public class Song {
                 song.queueId = json.getInt(QUEUE_ID);
 			    song.isPlaying = json.getBoolean(NOW_PLAYING);
 			    song.hasFocus = json.getBoolean(QUEUE_FOCUS);
+                song.fromPlaylist = json.getLong(PLAYLIST_ID);
             }
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -234,6 +237,7 @@ public class Song {
             album.queueId = cursor.getInt(queueIdIndex);
             album.isPlaying = (cursor.getInt(cursor.getColumnIndex(NOW_PLAYING)) == 1);
             album.hasFocus = (cursor.getInt(cursor.getColumnIndex(QUEUE_FOCUS)) == 1);
+            album.fromPlaylist = cursor.getLong(cursor.getColumnIndex(PLAYLIST_ID));
         }
 		
 		return album;
@@ -270,7 +274,8 @@ public class Song {
 				MediaStore.Audio.Media.YEAR + " INTEGER," +
 				MediaStore.Audio.Media.DATA + " TEXT," +
 				NOW_PLAYING + " INTEGER," +
-				QUEUE_FOCUS + " INTEGER" +
+				QUEUE_FOCUS + " INTEGER," +
+                PLAYLIST_ID + " INTEGER" +
 			");"; 
 	}
 	
@@ -293,6 +298,7 @@ public class Song {
 			values.put(QUEUE_ID, getQueueId());
 			values.put(NOW_PLAYING, isPlaying() ? 1 : 0);
 			values.put(QUEUE_FOCUS, hasFocus() ? 1 : 0);
+            values.put(PLAYLIST_ID, getFromPlaylist());
 		}
 		
 		return values;
