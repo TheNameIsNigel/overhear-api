@@ -168,4 +168,16 @@ public class Playlist {
         cursor.close();
         return toreturn;
     }
+
+    public int rename(Context context, String newName) {
+        if (name == null || name.trim().isEmpty()) {
+            return 0;
+        }
+        ContentValues values = new ContentValues();
+        Calendar now = Calendar.getInstance();
+        values.put(MediaStore.Audio.Playlists.NAME, newName.trim());
+        values.put(MediaStore.Audio.Playlists.DATE_MODIFIED, now.getTimeInMillis());
+        return context.getContentResolver().update(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
+                values, "_id = " + getId(), null);
+    }
 }
