@@ -108,13 +108,25 @@ public class Playlist {
 	}
 
     public void insertSong(Context context, Song song) {
-        context.getContentResolver().insert(getSongUri(), song.getContentValues(false));
+        Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", getId());
+        Cursor cur = context.getContentResolver().query(uri, null, null, null, null);
+        int base = cur.getCount();
+        cur.close();
+
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, base + 1);
+        values.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, song.getId());
+        context.getContentResolver().insert(getSongUri(), values);
     }
 
     public void insertSongs(Context context, ArrayList<Song> songs) {
         for(Song s : songs) {
-            context.getContentResolver().insert(getSongUri(), s.getContentValues(false));
+            insertSong(context, s);
         }
+    }
+
+    public int delete(Context context) {
+        return context.getContentResolver().delete(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, "_id = " + getId(), null);
     }
 
     public static ArrayList<Playlist> getAllPlaylists(Context context) {
