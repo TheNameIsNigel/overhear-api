@@ -87,7 +87,7 @@ public class LastFM {
 			return yearFormed;
 		}
 		
-		public static ArtistInfo fromJSON(JSONObject json) {
+		public static ArtistInfo fromJSON(JSONObject json, boolean highQuality) {
 			ArtistInfo info = new ArtistInfo();
 			try {
 				info.name = json.getString("name");
@@ -98,7 +98,8 @@ public class LastFM {
 //						info.bioImageUrl = img.getString("#text");
 //					}
 //				}
-				info.bioImageUrl = images.getJSONObject(images.length() - 2).getString("#text");
+				info.bioImageUrl = images.getJSONObject(highQuality ? 
+						images.length() - 1 : images.length() - 2).getString("#text");
 				JSONObject bio = json.getJSONObject("bio");
 				info.bioPublished = bio.getString("published");
 				info.bioSummary = bio.getString("summary");
@@ -126,7 +127,7 @@ public class LastFM {
 		return AlbumInfo.fromJSON(urlContents.getJSONObject("album"));
 	}
 	
-	public static ArtistInfo getArtistInfo(String artist) throws Exception {
+	public static ArtistInfo getArtistInfo(String artist, boolean highQuality) throws Exception {
 		String url = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo" +
                 "&artist=" + URLEncoder.encode(artist, "UTF-8") +
                 "&api_key=" + API_KEY +
@@ -136,6 +137,6 @@ public class LastFM {
 		if(urlContents.has("error")) {
 			throw new Exception(urlContents.getString("message"));
 		}
-		return ArtistInfo.fromJSON(urlContents.getJSONObject("artist"));
+		return ArtistInfo.fromJSON(urlContents.getJSONObject("artist"), highQuality);
 	}
 }
