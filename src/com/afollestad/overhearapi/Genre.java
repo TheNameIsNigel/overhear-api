@@ -82,7 +82,7 @@ public class Genre {
 		return genres;
 	}
 
-	public List<Song> getAllSongs(Context context) {
+	public ArrayList<Song> getSongs(Context context) {
 		String CONTENTDIR = MediaStore.Audio.Genres.Members.CONTENT_DIRECTORY;
         Uri uri = Uri.parse(GENRES_URI.toString() + "/" + getId() + "/" + CONTENTDIR);
 		Cursor cur = context.getContentResolver().query(
