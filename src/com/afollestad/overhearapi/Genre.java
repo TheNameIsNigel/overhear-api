@@ -83,22 +83,15 @@ public class Genre {
 	}
 
 	public ArrayList<Song> getSongs(Context context) {
-		String CONTENTDIR = MediaStore.Audio.Genres.Members.CONTENT_DIRECTORY;
-        Uri uri = Uri.parse(GENRES_URI.toString() + "/" + getId() + "/" + CONTENTDIR);
+		Uri uri = MediaStore.Audio.Genres.Members.getContentUri("external", getId());
 		Cursor cur = context.getContentResolver().query(
 				uri, 
 				null, 
 				null, 
 				null, 
-				MediaStore.Audio.Genres.Members.DEFAULT_SORT_ORDER);
+				null);
 		ArrayList<Song> songs = new ArrayList<Song>();
-		ArrayList<String> foundAlbums = new ArrayList<String>();
 		while (cur.moveToNext()) {
-			String album = cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-			if(foundAlbums.contains(album)) {
-				continue;
-			}
-			foundAlbums.add(album);
 			songs.add(Song.fromCursor(cur));
 		}
 		return songs;
