@@ -18,7 +18,7 @@ public class Album {
         this.artist = new Artist(artist, null);
     }
 
-	private int albumId;
+	private int albumId = -1;
 	private String name;
 	private Artist artist;
 	private String albumKey;
@@ -26,7 +26,7 @@ public class Album {
 	private String maxYear;
 	private int numSongs;
 	private long queueId = -1;
-	private long dateQueued;
+	private long dateQueued = -1;
 	
 	public final static String DATE_QUEUED = "date_queued";
 

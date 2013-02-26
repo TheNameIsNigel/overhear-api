@@ -62,8 +62,12 @@ public class WebArt {
     }
 
     public static String getArtistWhereStatement(Artist artist) {
+    	String key = "";
+    	if(artist.getKey() != null && !artist.getKey().trim().isEmpty()) {
+    		key = artist.getKey();
+    	}
         return NAME + " = '" + artist.getName().replace("'", "''") + "' AND " +
-                KEY + " = '" + artist.getKey().replace("'", "''") + "'";
+                KEY + " = '" + key.replace("'", "''") + "'";
     }
 	
 	public ContentValues getContentValues() {
