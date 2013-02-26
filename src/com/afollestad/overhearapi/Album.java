@@ -168,7 +168,7 @@ public class Album {
 			");";
 	}
 	
-	public ContentValues getContentValues(boolean forRecents) {
+	public ContentValues getContentValues(boolean forRecents, boolean includeQueueId) {
 		ContentValues values = new ContentValues();
 		values.put("_id", getAlbumId());
 		values.put(MediaStore.Audio.AlbumColumns.ALBUM_KEY, getAlbumKey());
@@ -179,7 +179,8 @@ public class Album {
 		values.put(MediaStore.Audio.AlbumColumns.LAST_YEAR, getLastYear());
 		values.put(MediaStore.Audio.AlbumColumns.NUMBER_OF_SONGS, getSongCount());
 		if(forRecents) {
-			values.put(Song.QUEUE_ID, getQueueId());
+			if(includeQueueId)
+				values.put(Song.QUEUE_ID, getQueueId());
 			values.put(Album.DATE_QUEUED, getDateQueued().getTimeInMillis());
 		}
 		return values;
