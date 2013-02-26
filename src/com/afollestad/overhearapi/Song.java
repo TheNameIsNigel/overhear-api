@@ -140,6 +140,14 @@ public class Song {
 		hasFocus = focus;
 	}
 	
+	public void setArtist(String artist) {
+		this.artist = artist;
+	}
+	
+	public void setAlbum(String album) {
+		this.album = album;
+	}
+	
 	public JSONObject getJSON() {
 		JSONObject json = new JSONObject();
 		try {

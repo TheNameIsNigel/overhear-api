@@ -1,5 +1,7 @@
 package com.afollestad.overhearapi;
 
+import java.util.Calendar;
+
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,6 +26,9 @@ public class Album {
 	private String maxYear;
 	private int numSongs;
 	private long queueId = -1;
+	private long dateQueued;
+	
+	public final static String DATE_QUEUED = "date_queued";
 
 	public int getAlbumId() {
 		return albumId;
@@ -56,6 +61,18 @@ public class Album {
 	public long getQueueId() {
 		return queueId;
 	}
+	public void setDateQueued(Calendar time) {
+		if(time == null) {
+			dateQueued = Calendar.getInstance().getTimeInMillis();
+			return;
+		}
+		dateQueued = time.getTimeInMillis();
+	}
+	public Calendar getDateQueued() {
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(dateQueued);
+		return cal;
+	}
 	
 	public static Album fromCursor(Cursor cursor) {
 		Album album = new Album();
@@ -72,6 +89,7 @@ public class Album {
 		int queueIdIndex = cursor.getColumnIndex(Song.QUEUE_ID);
 		if(queueIdIndex > -1) {
 			album.queueId = cursor.getLong(queueIdIndex);
+			album.dateQueued = cursor.getLong(cursor.getColumnIndex(Album.DATE_QUEUED));
 		}
 		
 		return album;
@@ -87,8 +105,10 @@ public class Album {
 			json.put("min_year", this.minYear);
 			json.put("max_year", this.maxYear);
 			json.put("num_songs", this.numSongs);
-            if(this.queueId > -1)
+            if(this.queueId > -1) {
 			    json.put(Song.QUEUE_ID, this.queueId);
+			    json.put(Album.DATE_QUEUED, this.dateQueued);
+            }
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -107,6 +127,7 @@ public class Album {
 			album.numSongs = json.getInt("num_songs");
             if(json.has(Song.QUEUE_ID)) {
 			    album.queueId = json.getInt(Song.QUEUE_ID);
+			    album.dateQueued = json.getLong(Album.DATE_QUEUED);
             }
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -135,6 +156,7 @@ public class Album {
 	public static String getCreateTableStatement(String tableName) {
 		return "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
 				Song.QUEUE_ID + " INTEGER PRIMARY KEY," +
+				Album.DATE_QUEUED + " INTEGER," +
 				"_id INTEGER," +
 				MediaStore.Audio.AlbumColumns.ALBUM_KEY +" TEXT," +
 				MediaStore.Audio.ArtistColumns.ARTIST_KEY +" TEXT," +
@@ -158,6 +180,7 @@ public class Album {
 		values.put(MediaStore.Audio.AlbumColumns.NUMBER_OF_SONGS, getSongCount());
 		if(forRecents) {
 			values.put(Song.QUEUE_ID, getQueueId());
+			values.put(Album.DATE_QUEUED, getDateQueued().getTimeInMillis());
 		}
 		return values;
 	}
