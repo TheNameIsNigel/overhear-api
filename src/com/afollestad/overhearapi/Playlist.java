@@ -65,24 +65,14 @@ public class Playlist {
         return MediaStore.Audio.Playlists.Members.getContentUri("external", getId());
     }
 
-    public ArrayList<Song> getSongs(Context context) {
-        ArrayList<Song> songs = Song.getAllFromUri(context, getSongUri(), null, null);
+    public ArrayList<Song> getSongs(Context context, String where) {
+        ArrayList<Song> songs = Song.getAllFromUri(context, getSongUri(), where, null);
         for(int i = 0; i < songs.size(); i++) {
         	songs.set(i, songs.get(i).setPlaylistId(getId()));
         }
         return songs;
     }
     
-    public Song getSong(Context context, long id) {
-    	ArrayList<Song> songs = getSongs(context);
-    	for(Song s : songs) {
-    		if(s.getId() == id) {
-    			return s;
-    		}
-    	}
-    	return null;
-    }
-
     public static Playlist fromJSON(String json) {
         try {
             return fromJSON(new JSONObject(json));
