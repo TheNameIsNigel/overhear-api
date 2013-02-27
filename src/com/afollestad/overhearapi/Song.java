@@ -138,6 +138,17 @@ public class Song {
 		return songs.get(0);
 	}
 	
+	public static Song fromData(Context context, String data) {
+		ArrayList<Song> songs = getAllFromScope(context, new String[] {
+				MediaStore.Audio.Media.DATA + " = '" + data.replace("'", "''") + "'",
+				null
+		});
+		if(songs.size() == 0) {
+			return null;
+		}
+		return songs.get(0);
+	}
+	
 	public JSONObject getJSON() {
 		JSONObject json = new JSONObject();
 		try {
