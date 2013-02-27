@@ -74,14 +74,13 @@ public class Playlist {
     }
     
     public Song getSong(Context context, long id) {
-    	Cursor cursor = context.getContentResolver().query(getSongUri(), null, "_id = " + id, null, null);
-    	if(!cursor.moveToFirst()) {
-    		cursor.close();
-    		return null;
+    	ArrayList<Song> songs = getSongs(context);
+    	for(Song s : songs) {
+    		if(s.getId() == id) {
+    			return s;
+    		}
     	}
-    	Song toreturn = Song.fromCursor(cursor);
-    	cursor.close();
-    	return toreturn;
+    	return null;
     }
 
     public static Playlist fromJSON(String json) {
