@@ -66,11 +66,7 @@ public class Playlist {
     }
 
     public ArrayList<Song> getSongs(Context context) {
-        ArrayList<Song> toreturn = Song.getAllFromUri(context, getSongUri(), null, null);
-        for (int i = 0; i < toreturn.size(); i++) {
-            toreturn.set(i, toreturn.get(i).setFromPlaylist(getId()));
-        }
-        return toreturn;
+        return Song.getAllFromUri(context, getSongUri(), null, null);
     }
 
     public static Playlist fromJSON(String json) {
