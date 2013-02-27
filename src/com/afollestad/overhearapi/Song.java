@@ -31,6 +31,7 @@ public class Song {
 	private String album;
 	private int year;
 	private String data;
+	private long playlistId = -1;
 
  	public int getId() {
 		return id;
@@ -62,6 +63,15 @@ public class Song {
 
 	public long getDuration() {
 		return duration;
+	}
+	
+	public long getPlaylistId() {
+		return playlistId;
+	}
+	
+	public Song setPlaylistId(long id) {
+		playlistId = id;
+		return this;
 	}
 
 	public String getDurationString() {
@@ -143,6 +153,7 @@ public class Song {
 			json.put("album", this.album);
 			json.put("year", this.year);
 			json.put("data", this.data);
+			json.put("playlist_id", this.playlistId);
 			if(queueId > -1) {
                 json.put(QUEUE_ID, this.queueId);
 			}
@@ -177,6 +188,7 @@ public class Song {
 			song.album = json.getString("album");
 			song.year = json.getInt("year");
 			song.data = json.getString("data");
+			song.playlistId = json.getLong("playlist_id");
 
             if(json.has(QUEUE_ID)) {
                 song.queueId = json.getInt(QUEUE_ID);
