@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -175,11 +174,14 @@ public class Song {
 	}
 
 	public static Song fromJSON(String json) {
+		if(json == null || json.trim().isEmpty()) {
+			return null;
+		}
 		try {
 			return fromJSON(new JSONObject(json));
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			throw new Error(e.getMessage());
+			return null;
 		}
 	}
 	public static Song fromJSON(JSONObject json) {
