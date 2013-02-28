@@ -1,5 +1,6 @@
 package com.afollestad.overhearapi;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -64,6 +65,15 @@ public class Artist {
 		return json;
 	}
 
+	public static Artist fromJSON(String json) {
+		try {
+			return fromJSON(new JSONObject(json));
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	public static Artist fromJSON(JSONObject json) {
 		Artist artist = new Artist();
 		try {

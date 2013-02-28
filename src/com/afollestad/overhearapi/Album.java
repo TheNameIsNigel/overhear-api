@@ -8,6 +8,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Album {
@@ -115,7 +117,15 @@ public class Album {
 		return json;
 	}
 
-	public static Album fromJSON(Context context, JSONObject json) {
+	public static Album fromJSON(String json) {
+		try {
+			return fromJSON(new JSONObject(json));
+		} catch (JSONException e) {
+			return null;
+		}
+	}
+	
+	public static Album fromJSON(JSONObject json) {
 		Album album = new Album();
 		try {
 			album.albumId = json.getInt("id");
