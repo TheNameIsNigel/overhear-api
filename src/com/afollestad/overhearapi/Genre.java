@@ -92,7 +92,7 @@ public class Genre {
 				null);
 		ArrayList<Song> songs = new ArrayList<Song>();
 		while (cur.moveToNext()) {
-			songs.add(Song.fromCursor(cur));
+			songs.add(Song.fromCursor(cur, false));
 		}
 		return songs;
 	}

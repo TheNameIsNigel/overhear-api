@@ -65,8 +65,22 @@ public class Playlist {
         return MediaStore.Audio.Playlists.Members.getContentUri("external", getId());
     }
 
+    public boolean contains(Context context, int id) {
+    	Cursor cursor = context.getContentResolver().query(getSongUri(), null, 
+    			MediaStore.Audio.Playlists.Members.AUDIO_ID + " = " + id, null, null);
+    	boolean toreturn = cursor.moveToNext();
+    	cursor.close();
+    	return toreturn;
+    }
+    
+    public boolean removeSong(Context context, int id) {
+    	int count = context.getContentResolver().delete(getSongUri(),
+    			MediaStore.Audio.Playlists.Members.AUDIO_ID + " = " + id, null);
+    	return count > 0;
+    }
+    
     public ArrayList<Song> getSongs(Context context, String where) {
-        ArrayList<Song> songs = Song.getAllFromUri(context, getSongUri(), where, null);
+        ArrayList<Song> songs = Song.getAllFromUri(context, getSongUri(), where, null, true);
         for(int i = 0; i < songs.size(); i++) {
         	songs.set(i, songs.get(i).setPlaylistId(getId()));
         }
@@ -151,6 +165,17 @@ public class Playlist {
         cursor.close();
         return toreturn;
     }
+    
+    public static Playlist get(Context context, String name) {
+        Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, null,
+        		MediaStore.Audio.PlaylistsColumns.NAME + " = '" + name.replace("'", "''") + "'", null, null);
+        if(!cursor.moveToFirst()) {
+            return null;
+        }
+        Playlist toreturn = Playlist.fromCursor(cursor);
+        cursor.close();
+        return toreturn;
+    }
 
     public static Playlist create(Context context, String name) {
         if (name == null || name.trim().isEmpty()) {
@@ -168,7 +193,7 @@ public class Playlist {
         cursor.close();
         return toreturn;
     }
-
+    
     public int rename(Context context, String newName) {
         if (name == null || name.trim().isEmpty()) {
             return 0;

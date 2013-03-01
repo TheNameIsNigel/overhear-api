@@ -212,9 +212,12 @@ public class Song {
 		return song;
 	}
 
-	public static Song fromCursor(Cursor cursor) {
+	public static Song fromCursor(Cursor cursor, boolean playlist) {
 		Song album = new Song();
-		album.id = cursor.getInt(cursor.getColumnIndex("_id"));
+		if(playlist)
+			album.id = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Playlists.Members.AUDIO_ID));
+		else 
+			album.id = cursor.getInt(cursor.getColumnIndex("_id"));
 		album.displayName = cursor.getString(cursor
 				.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
 		album.mimeType = cursor.getString(cursor
@@ -250,14 +253,14 @@ public class Song {
 
 	public static ArrayList<Song> getAllFromScope(Context context, String[] scope) {
 		Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-		return getAllFromUri(context, uri, scope[0], scope[1]);
+		return getAllFromUri(context, uri, scope[0], scope[1], false);
 	}
 
-    public static ArrayList<Song> getAllFromUri(Context context, Uri uri, String where, String sort) {
+    public static ArrayList<Song> getAllFromUri(Context context, Uri uri, String where, String sort, boolean playlist) {
         Cursor cursor = context.getContentResolver().query(uri, null, where, null, sort);
         ArrayList<Song> songs = new ArrayList<Song>();
         while(cursor.moveToNext()) {
-            songs.add(Song.fromCursor(cursor));
+            songs.add(Song.fromCursor(cursor, playlist));
         }
         cursor.close();
         return songs;
@@ -301,5 +304,20 @@ public class Song {
 		}
 		
 		return values;
+	}
+	
+	public String getWhereMatchStatement() {
+		String title = getTitle().replace("'", "''");
+		String artist = "";
+    	String album = "";
+    	
+    	if(getArtist() != null)
+    		artist = getArtist().replace("'", "''");
+    	if(getAlbum() != null)
+    		album = getAlbum().replace("'", "''");
+    	
+    	return MediaStore.Audio.Media.TITLE + " = '" + title + "' AND " +
+    		   MediaStore.Audio.Media.ARTIST + " = '" + artist + "' AND " +
+    		   MediaStore.Audio.Media.ALBUM + " = '" + album + "'";
 	}
 }
