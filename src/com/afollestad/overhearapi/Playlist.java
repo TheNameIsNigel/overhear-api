@@ -79,6 +79,10 @@ public class Playlist {
     	return count > 0;
     }
     
+    public void clear(Context context) {
+    	context.getContentResolver().delete(getSongUri(), null, null);
+    }
+    
     public ArrayList<Song> getSongs(Context context, String where) {
         ArrayList<Song> songs = Song.getAllFromUri(context, getSongUri(), where, null, true);
         for(int i = 0; i < songs.size(); i++) {
