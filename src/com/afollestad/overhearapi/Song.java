@@ -18,6 +18,7 @@ public class Song {
     public final static String QUEUE_ID = "queue_id";
 	
 	private int id;
+    private int playlistRowId = -1;
     private int queueId = -1;
 	private String displayName;
 	private String mimeType;
@@ -35,6 +36,10 @@ public class Song {
  	public int getId() {
 		return id;
 	}
+
+    public int getPlaylistRowId() {
+        return playlistRowId;
+    }
 
     public int getQueueId() {
         return queueId;
@@ -214,10 +219,14 @@ public class Song {
 
 	public static Song fromCursor(Cursor cursor, boolean playlist) {
 		Song album = new Song();
-		if(playlist)
+		if(playlist) {
 			album.id = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Playlists.Members.AUDIO_ID));
-		else 
+            album.playlistRowId = cursor.getInt(cursor.getColumnIndex("_id"));
+        }
+		else {
 			album.id = cursor.getInt(cursor.getColumnIndex("_id"));
+            album.playlistRowId = -1;
+        }
 		album.displayName = cursor.getString(cursor
 				.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
 		album.mimeType = cursor.getString(cursor
