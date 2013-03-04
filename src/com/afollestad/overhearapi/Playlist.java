@@ -72,8 +72,14 @@ public class Playlist {
     	cursor.close();
     	return toreturn;
     }
-    
-    public boolean removeSong(Context context, int rowId) {
+
+    public boolean removeSongById(Context context, int id) {
+        int count = context.getContentResolver().delete(getSongUri(),
+                MediaStore.Audio.Playlists.Members.AUDIO_ID + " = " + id, null);
+        return count > 0;
+    }
+
+    public boolean removeSongByRow(Context context, int rowId) {
     	int count = context.getContentResolver().delete(getSongUri(), "_id = " + rowId, null);
     	return count > 0;
     }
