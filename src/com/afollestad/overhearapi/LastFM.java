@@ -6,6 +6,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class LastFM {
@@ -53,7 +55,14 @@ public class LastFM {
 	
 	public static class ArtistInfo {
 		
-		private ArtistInfo() { }
+		private ArtistInfo() {
+            similarArtists = new ArrayList<ArtistInfo>();
+        }
+        private ArtistInfo(String name, String bioImageUrl) {
+            this();
+            this.name = name;
+            this.bioImageUrl = bioImageUrl;
+        }
 		
 		private String name;
 		private String bioImageUrl;
@@ -61,11 +70,12 @@ public class LastFM {
 		private String bioSummary;
 		private String bioContent;
 		private String yearFormed;
+        private List<ArtistInfo> similarArtists;
 		
 		public String getName() {
 			return name;
 		}
-		public String getBioImageURL() throws Exception {
+		public String getBioImageURL() {
 			return bioImageUrl;
 		}
 		public String getBioPublishedDate() {
@@ -86,24 +96,37 @@ public class LastFM {
 		public String getYearFormed() {
 			return yearFormed;
 		}
+        public List<ArtistInfo> getSimilarArtists() {
+            return similarArtists;
+        }
 		
 		public static ArtistInfo fromJSON(JSONObject json) {
 			ArtistInfo info = new ArtistInfo();
 			try {
 				info.name = json.getString("name");
 				JSONArray images = json.getJSONArray("image");
-//				for(int i = images.length() - 1; i > 0; i--) {
-//					JSONObject img = images.getJSONObject(i);
-//					if(img.getString("size").equals("extralarge") || img.getString("size").equals("large")) {
-//						info.bioImageUrl = img.getString("#text");
-//					}
-//				}
 				info.bioImageUrl = images.getJSONObject(images.length() - 1).getString("#text");
 				JSONObject bio = json.getJSONObject("bio");
 				info.bioPublished = bio.getString("published");
 				info.bioSummary = bio.getString("summary");
 				info.bioContent = bio.getString("content");
 				info.yearFormed = bio.optString("yearformed");
+
+                if(json.has("similar")) {
+                    JSONObject similar = json.getJSONObject("similar");
+                    if(similar.has("artist")) {
+                        JSONArray artists = similar.getJSONArray("artist");
+                        for(int i = 0; i < artists.length(); i++) {
+                            JSONObject simArt = artists.getJSONObject(i);
+                            images = simArt.getJSONArray("image");
+                            info.similarArtists.add(new ArtistInfo(
+                                    simArt.getString("name"),
+                                    images.getJSONObject(images.length() - 1).getString("#text")
+                            ));
+                        }
+                    }
+                }
+
 			} catch(Exception e) {
 				System.out.println(json.toString());
 				throw new java.lang.Error(e.getMessage());

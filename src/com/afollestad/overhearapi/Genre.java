@@ -8,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Genre {
 
@@ -66,34 +65,18 @@ public class Genre {
 		return genre;
 	}
 
-	public static List<Genre> getAllGenres(Context context) {
-		Cursor cur = context.getContentResolver().query(
-				GENRES_URI, 
-				null, 
-				null, 
-				null, 
-				MediaStore.Audio.Genres.DEFAULT_SORT_ORDER);
-		ArrayList<Genre> genres = new ArrayList<Genre>();
-		while (cur.moveToNext()) {
-			Genre toAdd = Genre.fromCursor(cur);
-			if(toAdd != null)
-				genres.add(toAdd);
-		}
-		return genres;
-	}
-
-	public ArrayList<Song> getSongs(Context context) {
+	public ArrayList<Integer> getSongs(Context context) {
 		Uri uri = MediaStore.Audio.Genres.Members.getContentUri("external", getId());
 		Cursor cur = context.getContentResolver().query(
 				uri, 
-				null, 
+				new String[] { "_id" },
 				null, 
 				null, 
 				null);
-		ArrayList<Song> songs = new ArrayList<Song>();
+        ArrayList<Integer> ids = new ArrayList<Integer>();
 		while (cur.moveToNext()) {
-			songs.add(Song.fromCursor(cur, false));
+			ids.add(cur.getInt(0));
 		}
-		return songs;
+		return ids;
 	}
 }

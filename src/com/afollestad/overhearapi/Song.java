@@ -130,29 +130,7 @@ public class Song {
 	public void setAlbum(String album) {
 		this.album = album;
 	}
-	
-	public static Song fromId(Context context, int id) {
-		ArrayList<Song> songs = getAllFromScope(context, new String[] {
-				"_id = " + id,
-				null
-		});
-		if(songs.size() == 0) {
-			return null;
-		}
-		return songs.get(0);
-	}
-	
-	public static Song fromData(Context context, String data) {
-		ArrayList<Song> songs = getAllFromScope(context, new String[] {
-				MediaStore.Audio.Media.DATA + " = '" + data.replace("'", "''") + "'",
-				null
-		});
-		if(songs.size() == 0) {
-			return null;
-		}
-		return songs.get(0);
-	}
-	
+
 	public JSONObject getJSON() {
 		JSONObject json = new JSONObject();
 		try {
@@ -260,19 +238,19 @@ public class Song {
 		return album;
 	}
 
-	public static ArrayList<Song> getAllFromScope(Context context, String[] scope) {
+	public static ArrayList<Integer> getAllFromScope(Context context, String[] scope) {
 		Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-		return getAllFromUri(context, uri, scope[0], scope[1], false);
+		return getAllFromUri(context, uri, scope[0], scope[1]);
 	}
 
-    public static ArrayList<Song> getAllFromUri(Context context, Uri uri, String where, String sort, boolean playlist) {
-        Cursor cursor = context.getContentResolver().query(uri, null, where, null, sort);
-        ArrayList<Song> songs = new ArrayList<Song>();
+    public static ArrayList<Integer> getAllFromUri(Context context, Uri uri, String where, String sort) {
+        Cursor cursor = context.getContentResolver().query(uri, new String[] { "_id" }, where, null, sort);
+        ArrayList<Integer> ids = new ArrayList<Integer>();
         while(cursor.moveToNext()) {
-            songs.add(Song.fromCursor(cursor, playlist));
+            ids.add(cursor.getInt(0));
         }
         cursor.close();
-        return songs;
+        return ids;
     }
 
 	public static String getCreateTableStatement(String tableName) {
@@ -295,8 +273,8 @@ public class Song {
 	
 	public ContentValues getContentValues(boolean forQueue) {
 		ContentValues values = new ContentValues();
-		values.put("_id", getId()); 
-		values.put(MediaStore.Audio.Media.DISPLAY_NAME, getDisplayName()); 
+		values.put("_id", getId());
+		values.put(MediaStore.Audio.Media.DISPLAY_NAME, getDisplayName());
 		values.put(MediaStore.Audio.Media.MIME_TYPE, getMimeType());
 		values.put(MediaStore.Audio.Media.DATE_ADDED, getDateAdded().getTimeInMillis());
 		values.put(MediaStore.Audio.Media.DATE_MODIFIED, getDateModified().getTimeInMillis());
@@ -307,14 +285,14 @@ public class Song {
 		values.put(MediaStore.Audio.Media.ALBUM, getAlbum());
 		values.put(MediaStore.Audio.Media.YEAR, getYear());
 		values.put(MediaStore.Audio.Media.DATA, getData());
-		
+
 		if(forQueue) {
 			values.put(QUEUE_ID, getQueueId());
 		}
-		
+
 		return values;
 	}
-	
+
 	public String getWhereMatchStatement() {
 		String title = getTitle().replace("'", "''");
 		String artist = "";

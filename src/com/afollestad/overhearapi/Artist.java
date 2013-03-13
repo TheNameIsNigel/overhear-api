@@ -96,7 +96,8 @@ public class Artist {
 				MediaStore.Audio.ArtistColumns.ARTIST + " = '" + name + "'", 
 				null, 
 				MediaStore.Audio.Artists.DEFAULT_SORT_ORDER);
-		cur.moveToFirst();
+		if(!cur.moveToFirst())
+            return null;
 		Artist toreturn = Artist.fromCursor(cur);
 		cur.close();
 		return toreturn;

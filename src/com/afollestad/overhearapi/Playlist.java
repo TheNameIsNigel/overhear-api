@@ -62,7 +62,11 @@ public class Playlist {
     }
 
     public Uri getSongUri() {
-        return MediaStore.Audio.Playlists.Members.getContentUri("external", getId());
+        return getSongUri(getId());
+    }
+
+    public static Uri getSongUri(long id) {
+        return MediaStore.Audio.Playlists.Members.getContentUri("external", id);
     }
 
     public boolean contains(Context context, int id) {
@@ -88,12 +92,18 @@ public class Playlist {
     	context.getContentResolver().delete(getSongUri(), null, null);
     }
     
-    public ArrayList<Song> getSongs(Context context, String where) {
-        ArrayList<Song> songs = Song.getAllFromUri(context, getSongUri(), where, null, true);
-        for(int i = 0; i < songs.size(); i++) {
-        	songs.set(i, songs.get(i).setPlaylistId(getId()));
+    public ArrayList<Integer> getSongs(Context context, String where) {
+        Cursor cur = context.getContentResolver().query(
+                getSongUri(),
+                new String[] { MediaStore.Audio.Playlists.Members.AUDIO_ID },
+                where,
+                null,
+                null);
+        ArrayList<Integer> ids = new ArrayList<Integer>();
+        while (cur.moveToNext()) {
+            ids.add(cur.getInt(0));
         }
-        return songs;
+        return ids;
     }
     
     public static Playlist fromJSON(String json) {
@@ -131,7 +141,7 @@ public class Playlist {
         return playlist;
     }
 
-    public void insertSong(Context context, Song song) {
+    public void insertSong(Context context, Integer id) {
         Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", getId());
         Cursor cur = context.getContentResolver().query(uri, null, null, null, null);
         int base = cur.getCount();
@@ -139,12 +149,12 @@ public class Playlist {
 
         ContentValues values = new ContentValues();
         values.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, base + 1);
-        values.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, song.getId());
+        values.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, id);
         context.getContentResolver().insert(getSongUri(), values);
     }
 
-    public void insertSongs(Context context, ArrayList<Song> songs) {
-        for (Song s : songs) {
+    public void insertSongs(Context context, ArrayList<Integer> songs) {
+        for (Integer s : songs) {
             insertSong(context, s);
         }
     }
