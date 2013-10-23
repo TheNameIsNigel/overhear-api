@@ -11,39 +11,22 @@ import java.util.ArrayList;
 
 public class Genre {
 
-	private Genre() { }
+    private static Uri GENRES_URI = MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI;
+    private int id;
+    private String name;
 
-	private int id;
-	private String name;
-	private static Uri GENRES_URI = MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI;
+    private Genre() {
+    }
 
-	public int getId() {
-		return id;
-	}
-	public String getName() {
-		return name;
-	}
-
-	public static Genre fromCursor(Cursor cursor) {
-		Genre genre = new Genre();
-		genre.id = cursor.getInt(cursor.getColumnIndex("_id"));
-		genre.name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.GenresColumns.NAME));
-		if(genre.name == null || genre.name.trim().isEmpty()) {
-			genre.name = "Unknown";
-		}
-		return genre;
-	}
-
-	public JSONObject getJSON() {
-		JSONObject json = new JSONObject();
-		try {
-			json.put("id", this.id);
-			json.put("name", this.name);
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		return json;
-	}
+    public static Genre fromCursor(Cursor cursor) {
+        Genre genre = new Genre();
+        genre.id = cursor.getInt(cursor.getColumnIndex("_id"));
+        genre.name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.GenresColumns.NAME));
+        if (genre.name == null || genre.name.trim().isEmpty()) {
+            genre.name = "Unknown";
+        }
+        return genre;
+    }
 
     public static Genre fromJSON(String json) {
         try {
@@ -54,29 +37,48 @@ public class Genre {
         }
     }
 
-	public static Genre fromJSON(JSONObject json) {
-		Genre genre = new Genre();
-		try {
-			genre.id = json.getInt("id");
-			genre.name = json.getString("name");
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		return genre;
-	}
+    private static Genre fromJSON(JSONObject json) {
+        Genre genre = new Genre();
+        try {
+            genre.id = json.getInt("id");
+            genre.name = json.getString("name");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return genre;
+    }
 
-	public ArrayList<Integer> getSongs(Context context) {
-		Uri uri = MediaStore.Audio.Genres.Members.getContentUri("external", getId());
-		Cursor cur = context.getContentResolver().query(
-				uri, 
-				new String[] { "_id" },
-				null, 
-				null, 
-				null);
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public JSONObject getJSON() {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("id", this.id);
+            json.put("name", this.name);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    public ArrayList<Integer> getSongs(Context context) {
+        Uri uri = MediaStore.Audio.Genres.Members.getContentUri("external", getId());
+        Cursor cur = context.getContentResolver().query(
+                uri,
+                new String[]{"_id"},
+                null,
+                null,
+                null);
         ArrayList<Integer> ids = new ArrayList<Integer>();
-		while (cur.moveToNext()) {
-			ids.add(cur.getInt(0));
-		}
-		return ids;
-	}
+        while (cur.moveToNext()) {
+            ids.add(cur.getInt(0));
+        }
+        return ids;
+    }
 }

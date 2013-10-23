@@ -13,99 +13,19 @@ import java.util.Calendar;
 
 public class Playlist {
 
-    private Playlist() {
-    }
-
     private long _id;
     private String name;
     private String data;
     private long dateAdded;
     private long dateModified;
 
-    public long getId() {
-        return _id;
+    private Playlist() {
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public Calendar getDateAdded() {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(dateAdded);
-        return cal;
-    }
-
-    public Calendar getDateModified() {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(dateModified);
-        return cal;
-    }
-
-
-    public JSONObject getJSON() {
-        JSONObject json = new JSONObject();
-        try {
-            json.put("_id", this._id);
-            json.put("_data", this.data);
-            json.put("name", this.name);
-            json.put("date_added", this.dateAdded);
-            json.put("date_modified", this.dateModified);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return json;
-    }
-
-    public Uri getSongUri() {
-        return getSongUri(getId());
-    }
-
-    public static Uri getSongUri(long id) {
+    private static Uri getSongUri(long id) {
         return MediaStore.Audio.Playlists.Members.getContentUri("external", id);
     }
 
-    public boolean contains(Context context, int id) {
-    	Cursor cursor = context.getContentResolver().query(getSongUri(), null, 
-    			MediaStore.Audio.Playlists.Members.AUDIO_ID + " = " + id, null, null);
-    	boolean toreturn = cursor.moveToNext();
-    	cursor.close();
-    	return toreturn;
-    }
-
-    public boolean removeSongById(Context context, int id) {
-        int count = context.getContentResolver().delete(getSongUri(),
-                MediaStore.Audio.Playlists.Members.AUDIO_ID + " = " + id, null);
-        return count > 0;
-    }
-
-    public boolean removeSongByRow(Context context, int rowId) {
-    	int count = context.getContentResolver().delete(getSongUri(), "_id = " + rowId, null);
-    	return count > 0;
-    }
-    
-    public void clear(Context context) {
-    	context.getContentResolver().delete(getSongUri(), null, null);
-    }
-    
-    public ArrayList<Integer> getSongs(Context context, String where) {
-        Cursor cur = context.getContentResolver().query(
-                getSongUri(),
-                new String[] { MediaStore.Audio.Playlists.Members.AUDIO_ID },
-                where,
-                null,
-                null);
-        ArrayList<Integer> ids = new ArrayList<Integer>();
-        while (cur.moveToNext()) {
-            ids.add(cur.getInt(0));
-        }
-        return ids;
-    }
-    
     public static Playlist fromJSON(String json) {
         try {
             return fromJSON(new JSONObject(json));
@@ -115,7 +35,7 @@ public class Playlist {
         }
     }
 
-    public static Playlist fromJSON(JSONObject json) {
+    private static Playlist fromJSON(JSONObject json) {
         Playlist playlist = new Playlist();
         try {
             playlist._id = json.getLong("_id");
@@ -141,28 +61,6 @@ public class Playlist {
         return playlist;
     }
 
-    public void insertSong(Context context, Integer id) {
-        Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", getId());
-        Cursor cur = context.getContentResolver().query(uri, null, null, null, null);
-        int base = cur.getCount();
-        cur.close();
-
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, base + 1);
-        values.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, id);
-        context.getContentResolver().insert(getSongUri(), values);
-    }
-
-    public void insertSongs(Context context, ArrayList<Integer> songs) {
-        for (Integer s : songs) {
-            insertSong(context, s);
-        }
-    }
-
-    public int delete(Context context) {
-        return context.getContentResolver().delete(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, "_id = " + getId(), null);
-    }
-
     public static ArrayList<Playlist> getAllPlaylists(Context context) {
         ArrayList<Playlist> toreturn = new ArrayList<Playlist>();
         Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, null,
@@ -177,18 +75,18 @@ public class Playlist {
     public static Playlist get(Context context, long id) {
         Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, null,
                 "_id = " + id, null, null);
-        if(!cursor.moveToFirst()) {
+        if (!cursor.moveToFirst()) {
             return null;
         }
         Playlist toreturn = Playlist.fromCursor(cursor);
         cursor.close();
         return toreturn;
     }
-    
+
     public static Playlist get(Context context, String name) {
         Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, null,
-        		MediaStore.Audio.PlaylistsColumns.NAME + " = '" + name.replace("'", "''") + "'", null, null);
-        if(!cursor.moveToFirst()) {
+                MediaStore.Audio.PlaylistsColumns.NAME + " = '" + name.replace("'", "''") + "'", null, null);
+        if (!cursor.moveToFirst()) {
             return null;
         }
         Playlist toreturn = Playlist.fromCursor(cursor);
@@ -212,7 +110,108 @@ public class Playlist {
         cursor.close();
         return toreturn;
     }
-    
+
+    public long getId() {
+        return _id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public Calendar getDateAdded() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(dateAdded);
+        return cal;
+    }
+
+    public Calendar getDateModified() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(dateModified);
+        return cal;
+    }
+
+    public JSONObject getJSON() {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("_id", this._id);
+            json.put("_data", this.data);
+            json.put("name", this.name);
+            json.put("date_added", this.dateAdded);
+            json.put("date_modified", this.dateModified);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    public Uri getSongUri() {
+        return getSongUri(getId());
+    }
+
+    public boolean contains(Context context, int id) {
+        Cursor cursor = context.getContentResolver().query(getSongUri(), null,
+                MediaStore.Audio.Playlists.Members.AUDIO_ID + " = " + id, null, null);
+        boolean toreturn = cursor.moveToNext();
+        cursor.close();
+        return toreturn;
+    }
+
+    public boolean removeSongById(Context context, int id) {
+        int count = context.getContentResolver().delete(getSongUri(),
+                MediaStore.Audio.Playlists.Members.AUDIO_ID + " = " + id, null);
+        return count > 0;
+    }
+
+    public boolean removeSongByRow(Context context, int rowId) {
+        int count = context.getContentResolver().delete(getSongUri(), "_id = " + rowId, null);
+        return count > 0;
+    }
+
+    public void clear(Context context) {
+        context.getContentResolver().delete(getSongUri(), null, null);
+    }
+
+    public ArrayList<Integer> getSongs(Context context, String where) {
+        Cursor cur = context.getContentResolver().query(
+                getSongUri(),
+                new String[]{MediaStore.Audio.Playlists.Members.AUDIO_ID},
+                where,
+                null,
+                null);
+        ArrayList<Integer> ids = new ArrayList<Integer>();
+        while (cur.moveToNext()) {
+            ids.add(cur.getInt(0));
+        }
+        return ids;
+    }
+
+    public void insertSong(Context context, Integer id) {
+        Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", getId());
+        Cursor cur = context.getContentResolver().query(uri, null, null, null, null);
+        int base = cur.getCount();
+        cur.close();
+
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, base + 1);
+        values.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, id);
+        context.getContentResolver().insert(getSongUri(), values);
+    }
+
+    public void insertSongs(Context context, ArrayList<Integer> songs) {
+        for (Integer s : songs) {
+            insertSong(context, s);
+        }
+    }
+
+    public int delete(Context context) {
+        return context.getContentResolver().delete(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, "_id = " + getId(), null);
+    }
+
     public int rename(Context context, String newName) {
         if (name == null || name.trim().isEmpty()) {
             return 0;

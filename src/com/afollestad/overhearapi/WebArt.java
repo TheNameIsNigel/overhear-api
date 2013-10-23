@@ -5,48 +5,37 @@ import android.database.Cursor;
 
 public class WebArt {
 
-	private WebArt() { }
-    public WebArt(String name, String key, String url) {
+    public final static String NAME = "name";
+    private final static String KEY = "key";
+    private final static String URL = "url";
+    private String name;
+    private String key;
+    private String url;
+
+    private WebArt() {
+    }
+
+    private WebArt(String name, String key, String url) {
         this.name = name;
         this.key = key;
         this.url = url;
     }
 
-	private String name;
-	private String key;
-	private String url;
-
-    public final static String NAME = "name";
-    public final static String KEY = "key";
-    public final static String URL = "url";
-
-    public String getName() {
-        return name;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-	public static WebArt fromCursor(Cursor cursor) {
-		WebArt art = new WebArt();
+    public static WebArt fromCursor(Cursor cursor) {
+        WebArt art = new WebArt();
         art.name = cursor.getString(cursor.getColumnIndex(NAME));
         art.key = cursor.getString(cursor.getColumnIndex(KEY));
         art.url = cursor.getString(cursor.getColumnIndex(URL));
-		return art;
-	}
+        return art;
+    }
 
-	public static String getCreateTableStatement(String tableName) {
-		return "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
-				NAME + " TEXT PRIMARY KEY," +
-				KEY + " TEXT," +
-				URL + " TEXT" +
-			");";
-	}
+    public static String getCreateTableStatement(String tableName) {
+        return "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
+                NAME + " TEXT PRIMARY KEY," +
+                KEY + " TEXT," +
+                URL + " TEXT" +
+                ");";
+    }
 
     public static WebArt fromAlbum(Album album, String url) {
         return new WebArt(album.getName(), album.getArtist().getName(), url);
@@ -62,19 +51,31 @@ public class WebArt {
     }
 
     public static String getArtistWhereStatement(Artist artist) {
-    	String key = "";
-    	if(artist.getKey() != null && !artist.getKey().trim().isEmpty()) {
-    		key = artist.getKey();
-    	}
+        String key = "";
+        if (artist.getKey() != null && !artist.getKey().trim().isEmpty()) {
+            key = artist.getKey();
+        }
         return NAME + " = '" + artist.getName().replace("'", "''") + "' AND " +
                 KEY + " = '" + key.replace("'", "''") + "'";
     }
-	
-	public ContentValues getContentValues() {
-		ContentValues values = new ContentValues();
+
+    public String getName() {
+        return name;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public ContentValues getContentValues() {
+        ContentValues values = new ContentValues();
         values.put(NAME, name);
         values.put(KEY, key);
         values.put(URL, url);
-		return values;
-	}
+        return values;
+    }
 }
