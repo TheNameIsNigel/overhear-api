@@ -11,7 +11,6 @@ import java.util.ArrayList;
 
 public class Genre {
 
-    private static Uri GENRES_URI = MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI;
     private int id;
     private String name;
 

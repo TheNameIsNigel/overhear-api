@@ -61,7 +61,7 @@ public class Album {
         }
     }
 
-    public static Album fromJSON(JSONObject json) {
+    private static Album fromJSON(JSONObject json) {
         Album album = new Album();
         try {
             album.albumId = json.getInt("id");
@@ -126,28 +126,28 @@ public class Album {
         return artist;
     }
 
-    public String getAlbumKey() {
+    String getAlbumKey() {
         return albumKey;
     }
 
-    public String getFirstYear() {
+    String getFirstYear() {
         return minYear;
     }
 
-    public String getLastYear() {
+    String getLastYear() {
         return maxYear;
     }
 
-    public int getSongCount() {
+    int getSongCount() {
         return numSongs;
     }
 
-    public Uri getAlbumArtUri(Context context) {
+    public Uri getAlbumArtUri() {
         Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
         return ContentUris.withAppendedId(sArtworkUri, getAlbumId());
     }
 
-    public long getQueueId() {
+    long getQueueId() {
         return queueId;
     }
 
@@ -155,7 +155,7 @@ public class Album {
         this.queueId = queueId;
     }
 
-    public Calendar getDateQueued() {
+    Calendar getDateQueued() {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(dateQueued);
         return cal;

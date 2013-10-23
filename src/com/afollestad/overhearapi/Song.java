@@ -62,7 +62,7 @@ public class Song {
         }
     }
 
-    public static Song fromJSON(JSONObject json) {
+    private static Song fromJSON(JSONObject json) {
         Song song = new Song();
         try {
             song.id = json.getInt("id");
@@ -137,7 +137,7 @@ public class Song {
         return getAllFromUri(context, uri, scope[0], scope[1]);
     }
 
-    public static ArrayList<Integer> getAllFromUri(Context context, Uri uri, String where, String sort) {
+    private static ArrayList<Integer> getAllFromUri(Context context, Uri uri, String where, String sort) {
         Cursor cursor = context.getContentResolver().query(uri, new String[]{"_id"}, where, null, sort);
         ArrayList<Integer> ids = new ArrayList<Integer>();
         while (cursor.moveToNext()) {
@@ -165,7 +165,7 @@ public class Song {
                 ");";
     }
 
-    public int getId() {
+    int getId() {
         return id;
     }
 
@@ -173,7 +173,7 @@ public class Song {
         return playlistRowId;
     }
 
-    public int getQueueId() {
+    int getQueueId() {
         return queueId;
     }
 
@@ -181,27 +181,27 @@ public class Song {
         this.queueId = queueId;
     }
 
-    public String getDisplayName() {
+    String getDisplayName() {
         return displayName;
     }
 
-    public String getMimeType() {
+    String getMimeType() {
         return mimeType;
     }
 
-    public Calendar getDateAdded() {
+    Calendar getDateAdded() {
         return dateAdded;
     }
 
-    public Calendar getDateModified() {
+    Calendar getDateModified() {
         return dateModified;
     }
 
-    public String getTitle() {
+    String getTitle() {
         return title;
     }
 
-    public long getDuration() {
+    long getDuration() {
         return duration;
     }
 
@@ -218,11 +218,11 @@ public class Song {
         return getDurationString(getDuration());
     }
 
-    public int getTrack() {
+    int getTrack() {
         return track;
     }
 
-    public String getArtist() {
+    String getArtist() {
         return artist;
     }
 
@@ -230,7 +230,7 @@ public class Song {
         this.artist = artist;
     }
 
-    public String getAlbum() {
+    String getAlbum() {
         return album;
     }
 
@@ -238,11 +238,11 @@ public class Song {
         this.album = album;
     }
 
-    public int getYear() {
+    int getYear() {
         return year;
     }
 
-    public String getData() {
+    String getData() {
         return data;
     }
 

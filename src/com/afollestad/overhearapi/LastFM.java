@@ -79,7 +79,7 @@ public class LastFM {
             return releaseDate;
         }
 
-        public String getCoverImageURL() throws Exception {
+        public String getCoverImageURL() {
             return coverUrl;
         }
     }
@@ -131,6 +131,7 @@ public class LastFM {
                             }
                         }
                     } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
 
