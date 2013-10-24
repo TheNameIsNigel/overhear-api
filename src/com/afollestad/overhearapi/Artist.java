@@ -3,10 +3,11 @@ package com.afollestad.overhearapi;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
+import com.afollestad.silk.caching.SilkComparable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Artist {
+public class Artist implements SilkComparable<Artist> {
 
     private long _id;
     private String name;
@@ -102,5 +103,15 @@ public class Artist {
             e.printStackTrace();
         }
         return json;
+    }
+
+    @Override
+    public Object getSilkId() {
+        return getId();
+    }
+
+    @Override
+    public boolean equalTo(Artist other) {
+        return getId() == other.getId();
     }
 }

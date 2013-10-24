@@ -6,12 +6,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import com.afollestad.silk.caching.SilkComparable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
 
-public class Album {
+public class Album implements SilkComparable<Album> {
 
     public final static String DATE_QUEUED = "date_queued";
     private int albumId = -1;
@@ -205,5 +206,15 @@ public class Album {
             values.put(Album.DATE_QUEUED, getDateQueued().getTimeInMillis());
         }
         return values;
+    }
+
+    @Override
+    public Object getSilkId() {
+        return getAlbumId();
+    }
+
+    @Override
+    public boolean equalTo(Album other) {
+        return getAlbumId() == other.getAlbumId();
     }
 }

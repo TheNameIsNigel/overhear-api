@@ -5,13 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import com.afollestad.silk.caching.SilkComparable;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
-public class Song {
+public class Song implements SilkComparable<Song> {
 
     public final static String QUEUE_ID = "queue_id";
     private int id;
@@ -306,5 +307,15 @@ public class Song {
         return MediaStore.Audio.Media.TITLE + " = '" + title + "' AND " +
                 MediaStore.Audio.Media.ARTIST + " = '" + artist + "' AND " +
                 MediaStore.Audio.Media.ALBUM + " = '" + album + "'";
+    }
+
+    @Override
+    public Object getSilkId() {
+        return getId();
+    }
+
+    @Override
+    public boolean equalTo(Song other) {
+        return getId() == other.getId();
     }
 }

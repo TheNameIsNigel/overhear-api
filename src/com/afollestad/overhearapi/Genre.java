@@ -4,12 +4,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import com.afollestad.silk.caching.SilkComparable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Genre {
+public class Genre implements SilkComparable<Genre> {
 
     private int id;
     private String name;
@@ -79,5 +80,15 @@ public class Genre {
             ids.add(cur.getInt(0));
         }
         return ids;
+    }
+
+    @Override
+    public Object getSilkId() {
+        return getId();
+    }
+
+    @Override
+    public boolean equalTo(Genre other) {
+        return getId() == other.getId();
     }
 }

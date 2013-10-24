@@ -5,13 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import com.afollestad.silk.caching.SilkComparable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class Playlist {
+public class Playlist implements SilkComparable<Playlist> {
 
     private long _id;
     private String name;
@@ -222,5 +223,15 @@ public class Playlist {
         values.put(MediaStore.Audio.Playlists.DATE_MODIFIED, now.getTimeInMillis());
         return context.getContentResolver().update(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
                 values, "_id = " + getId(), null);
+    }
+
+    @Override
+    public Object getSilkId() {
+        return getId();
+    }
+
+    @Override
+    public boolean equalTo(Playlist other) {
+        return getId() == other.getId();
     }
 }
