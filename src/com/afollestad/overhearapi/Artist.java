@@ -114,4 +114,11 @@ public class Artist implements SilkComparable<Artist> {
     public boolean equalTo(Artist other) {
         return getId() == other.getId();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Artist)) return false;
+        Artist album = (Artist) o;
+        return album.getId() == getId();
+    }
 }

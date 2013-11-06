@@ -217,4 +217,11 @@ public class Album implements SilkComparable<Album> {
     public boolean equalTo(Album other) {
         return getAlbumId() == other.getAlbumId();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Album)) return false;
+        Album album = (Album) o;
+        return album.getAlbumId() == getAlbumId();
+    }
 }
